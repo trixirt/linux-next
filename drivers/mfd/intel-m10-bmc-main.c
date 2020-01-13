@@ -279,6 +279,7 @@ static int intel_m10_bmc_spi_probe(struct spi_device *spi)
 
 	init_rwsem(&m10bmc->bmcfw_lock);
 	m10bmc->dev = dev;
+
 	m10bmc->regmap =
 		devm_regmap_init_spi_avmm(spi, &intel_m10bmc_regmap_config);
 	if (IS_ERR(m10bmc->regmap)) {
