@@ -708,11 +708,8 @@ static int parse_feature_irqs(struct build_feature_devs_info *binfo,
 		break;
 	}
 
-	if (!inr) {
-		*irq_base = 0;
-		*nr_irqs = 0;
+	if (!inr)
 		return 0;
-	}
 
 	dev_dbg(binfo->dev, "feature: 0x%llx, irq_base: %u, nr_irqs: %u\n",
 		fid, ibase, inr);
@@ -751,9 +748,9 @@ create_feature_instance(struct build_feature_devs_info *binfo,
 			struct dfl_fpga_enum_dfl *dfl, resource_size_t ofst,
 			resource_size_t size, u64 fid)
 {
-	unsigned int irq_base, nr_irqs;
+	unsigned int irq_base = 0;
+	unsigned int nr_irqs = 0;
 	struct dfl_feature_info *finfo;
-	int ret;
 
 	/* read feature size and id if inputs are invalid */
 	size = size ? size : feature_size(dfl->ioaddr + ofst);
@@ -762,9 +759,7 @@ create_feature_instance(struct build_feature_devs_info *binfo,
 	if (dfl->len - ofst < size)
 		return -EINVAL;
 
-	ret = parse_feature_irqs(binfo, ofst, fid, &irq_base, &nr_irqs);
-	if (ret)
-		return ret;
+	parse_feature_irqs(binfo, ofst, fid, &irq_base, &nr_irqs);
 
 	finfo = kzalloc(sizeof(*finfo), GFP_KERNEL);
 	if (!finfo)
