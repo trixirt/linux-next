@@ -117,11 +117,6 @@ static int *cci_pci_create_irq_table(struct pci_dev *pcidev, unsigned int nvec)
 	return table;
 }
 
-static void cci_pci_free_irq_table(int *table)
-{
-	kfree(table);
-}
-
 /* enumerate feature devices under pci device */
 static int cci_enumerate_feature_devs(struct pci_dev *pcidev)
 {
@@ -154,7 +149,7 @@ static int cci_enumerate_feature_devs(struct pci_dev *pcidev)
 		}
 
 		ret = dfl_fpga_enum_info_add_irq(info, nvec, irq_table);
-		cci_pci_free_irq_table(irq_table);
+		kfree(irq_table);
 		if (ret)
 			goto irq_free_exit;
 	}
