@@ -1407,9 +1407,6 @@ static int do_set_irq_trigger(struct dfl_feature *feature, unsigned int idx,
 	struct eventfd_ctx *trigger;
 	int irq, ret;
 
-	if (idx >= feature->nr_irqs)
-		return -EINVAL;
-
 	irq = feature->irq_ctx[idx].irq;
 
 	if (feature->irq_ctx[idx].trigger) {
@@ -1469,7 +1466,12 @@ int dfl_fpga_set_irq_triggers(struct dfl_feature *feature, unsigned int start,
 	unsigned int i;
 	int ret = 0;
 
-	if (start + count < start || start + count > feature->nr_irqs)
+	/* overflow */
+	if (unlikely(start + count < start))
+		return -EINVAL;
+
+	/* exceeds nr_irqs */
+	if (start + count > feature->nr_irqs)
 		return -EINVAL;
 
 	for (i = 0; i < count; i++) {
