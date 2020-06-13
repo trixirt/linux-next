@@ -1228,6 +1228,13 @@ static int fat_add_new_entries(struct inode *dir, void *slots, int nr_slots,
 	do {
 		start_blknr = blknr = fat_clus_to_blknr(sbi, cluster[i]);
 		last_blknr = start_blknr + sbi->sec_per_clus;
+
+		/* overflow */
+		if (unlikely(last_blknr <= start_blknr)) {
+			err = -ENOMEM;
+			goto error_nomem;
+		}
+
 		while (blknr < last_blknr) {
 			bhs[n] = sb_getblk(sb, blknr);
 			if (!bhs[n]) {
