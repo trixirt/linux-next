@@ -207,6 +207,15 @@ config FPGA_DFL_EMIF
 	  memory interface status information as well as memory clearing
 	  control.
 
+config FPGA_DFL_EMIF
+	tristate "DFL EMIF private feature support"
+	depends on FPGA_DFL && HAS_IOMEM
+	help
+	  This driver is for the EMIF private feature implemented under
+	  FPGA Device Feature List (DFL) framework. It is used to expose
+	  memory interface status information as well as memory clearing
+	  control.
+
 source "drivers/memory/samsung/Kconfig"
 source "drivers/memory/tegra/Kconfig"
 
