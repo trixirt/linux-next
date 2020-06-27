@@ -139,8 +139,6 @@ static struct platform_device *create_cntrl(struct device *dev,
 
 	pdata.num_devices = 1;
 	pdata.devices = m10_info;
-	pdata.use_parent_regmap = true;
-	pdata.regoff = ALTR_SPI_BASE;
 
 	dev_dbg(dev, "%s cs %hu bpm 0x%x mode 0x%hx\n", __func__,
 		pdata.num_chipselect, pdata.bits_per_word_mask,
@@ -148,7 +146,7 @@ static struct platform_device *create_cntrl(struct device *dev,
 
 	memset(&pdevinfo, 0, sizeof(pdevinfo));
 
-	pdevinfo.name = ALTERA_SPI_DRV_NAME;
+	pdevinfo.name = ALTERA_SPI_SUBDEV_NAME;
 	pdevinfo.id = PLATFORM_DEVID_AUTO;
 	pdevinfo.parent = dev;
 	pdevinfo.data = &pdata;
