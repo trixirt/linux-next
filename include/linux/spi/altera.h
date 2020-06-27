@@ -10,6 +10,7 @@
 #include <linux/types.h>
 
 #define ALTERA_SPI_DRV_NAME	"spi-altera"
+#define ALTERA_SPI_SUBDEV_NAME	"spi-altera-subdev"
 
 /**
  * struct altera_spi_platform_data - Platform data of the Altera SPI driver
