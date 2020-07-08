@@ -782,8 +782,16 @@ int fsl_mc_device_add(struct fsl_mc_obj_desc *obj_desc,
 
 error_cleanup_dev:
 	kfree(mc_dev->regions);
-	kfree(mc_bus);
-	kfree(mc_dev);
+	/*
+	 * mc_bus allocates a private version of mc_dev
+	 * it is not appropriate to free the private version.
+	 * Which means we have to check the pointer before freeing it.
+	 * Do not remove this check.
+	 */
+	if (mc_bus)
+		kfree(mc_bus);
+	else
+		kfree(mc_dev);
 
 	return error;
 }
