@@ -289,7 +289,6 @@ struct j1939_priv *j1939_netdev_start(struct net_device *ndev)
  out_priv_put:
 	j1939_priv_set(ndev, NULL);
 	dev_put(ndev);
-	kfree(priv);
 
 	return ERR_PTR(ret);
 }
