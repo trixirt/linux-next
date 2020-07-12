@@ -668,7 +668,7 @@ static int INIT start_bunzip(struct bunzip_data **bdp, void *inbuf, long len,
 	   uncompressed data.  Allocate intermediate buffer for block. */
 	bd->dbufSize = 100000*(i-BZh0);
 
-	bd->dbuf = large_malloc(bd->dbufSize * sizeof(int));
+	bd->dbuf = large_malloc(bd->dbufSize * sizeof(unsigned int));
 	if (!bd->dbuf)
 		return RETVAL_OUT_OF_MEMORY;
 	return RETVAL_OK;
