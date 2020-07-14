@@ -1079,7 +1079,7 @@ research:
 						     UNFM_P_SIZE *
 						     blocks_needed);
 
-			if (blocks_needed != 1)
+			if (un != &unf_single)
 				kfree(un);
 
 			if (retval) {
