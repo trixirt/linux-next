@@ -387,12 +387,15 @@ static int read_attribute_mem(struct dvb_ca_en50221 *ca,
 {
 	struct cxd *ci = ca->data;
 	u8 val;
+	int ret;
 
 	mutex_lock(&ci->lock);
 	set_mode(ci, 1);
-	read_pccard(ci, address, &val, 1);
+	ret = read_pccard(ci, address, &val, 1);
+	if (!ret)
+		ret = val;
 	mutex_unlock(&ci->lock);
-	return val;
+	return ret;
 }
 
 static int write_attribute_mem(struct dvb_ca_en50221 *ca, int slot,
@@ -412,12 +415,15 @@ static int read_cam_control(struct dvb_ca_en50221 *ca,
 {
 	struct cxd *ci = ca->data;
 	unsigned int val;
+	int ret;
 
 	mutex_lock(&ci->lock);
 	set_mode(ci, 0);
-	read_io(ci, address, &val);
+	ret = read_io(ci, address, &val);
+	if (!ret)
+		ret = val;
 	mutex_unlock(&ci->lock);
-	return val;
+	return ret;
 }
 
 static int write_cam_control(struct dvb_ca_en50221 *ca, int slot,
