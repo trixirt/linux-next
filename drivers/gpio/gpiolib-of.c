@@ -657,6 +657,7 @@ static int of_gpiochip_add_hog(struct gpio_chip *chip, struct device_node *hog)
 	int ret;
 
 	for (i = 0;; i++) {
+		name = NULL;
 		desc = of_parse_own_gpio(hog, chip, i, &name, &lflags, &dflags);
 		if (IS_ERR(desc))
 			break;
