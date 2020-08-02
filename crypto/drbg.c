@@ -421,6 +421,9 @@ static int drbg_ctr_df(struct drbg_state *drbg,
 	size_t inputlen = 0;
 	struct drbg_string *seed = NULL;
 
+	if (!drbg_blocklen(drbg))
+		return -EINVAL;
+
 	memset(pad, 0, drbg_blocklen(drbg));
 	memset(iv, 0, drbg_blocklen(drbg));
 
