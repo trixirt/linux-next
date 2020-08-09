@@ -139,6 +139,7 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
 
 	if (!(st->chip_config.accl_fifo_enable |
 		st->chip_config.gyro_fifo_enable |
+		st->chip_config.temp_fifo_enable |
 		st->chip_config.magn_fifo_enable))
 		goto end_session;
 	bytes_per_datum = 0;
