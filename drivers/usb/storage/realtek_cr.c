@@ -481,16 +481,16 @@ static int enable_oscillator(struct us_data *us)
 	u8 value;
 
 	retval = rts51x_read_mem(us, 0xFE77, &value, 1);
-	if (retval < 0)
+	if (retval != STATUS_SUCCESS)
 		return -EIO;
 
 	value |= 0x04;
 	retval = rts51x_write_mem(us, 0xFE77, &value, 1);
-	if (retval < 0)
+	if (retval != STATUS_SUCCESS)
 		return -EIO;
 
 	retval = rts51x_read_mem(us, 0xFE77, &value, 1);
-	if (retval < 0)
+	if (retval != STATUS_SUCCESS)
 		return -EIO;
 
 	if (!(value & 0x04))
@@ -533,7 +533,7 @@ static int do_config_autodelink(struct us_data *us, int enable, int force)
 	u8 value;
 
 	retval = rts51x_read_mem(us, 0xFE47, &value, 1);
-	if (retval < 0)
+	if (retval != STATUS_SUCCESS)
 		return -EIO;
 
 	if (enable) {
@@ -549,7 +549,7 @@ static int do_config_autodelink(struct us_data *us, int enable, int force)
 
 	/* retval = rts51x_write_mem(us, 0xFE47, &value, 1); */
 	retval = __do_config_autodelink(us, &value, 1);
-	if (retval < 0)
+	if (retval != STATUS_SUCCESS)
 		return -EIO;
 
 	return 0;
@@ -565,7 +565,7 @@ static int config_autodelink_after_power_on(struct us_data *us)
 		return 0;
 
 	retval = rts51x_read_mem(us, 0xFE47, &value, 1);
-	if (retval < 0)
+	if (retval != STATUS_SUCCESS)
 		return -EIO;
 
 	if (auto_delink_en) {
@@ -580,7 +580,7 @@ static int config_autodelink_after_power_on(struct us_data *us)
 
 		/* retval = rts51x_write_mem(us, 0xFE47, &value, 1); */
 		retval = __do_config_autodelink(us, &value, 1);
-		if (retval < 0)
+		if (retval != STATUS_SUCCESS)
 			return -EIO;
 
 		retval = enable_oscillator(us);
@@ -602,18 +602,18 @@ static int config_autodelink_after_power_on(struct us_data *us)
 
 		/* retval = rts51x_write_mem(us, 0xFE47, &value, 1); */
 		retval = __do_config_autodelink(us, &value, 1);
-		if (retval < 0)
+		if (retval != STATUS_SUCCESS)
 			return -EIO;
 
 		if (CHECK_ID(chip, 0x0159, 0x5888)) {
 			value = 0xFF;
 			retval = rts51x_write_mem(us, 0xFE79, &value, 1);
-			if (retval < 0)
+			if (retval != STATUS_SUCCESS)
 				return -EIO;
 
 			value = 0x01;
 			retval = rts51x_write_mem(us, 0x48, &value, 1);
-			if (retval < 0)
+			if (retval != STATUS_SUCCESS)
 				return -EIO;
 		}
 	}
@@ -633,37 +633,37 @@ static int config_autodelink_before_power_down(struct us_data *us)
 
 	if (auto_delink_en) {
 		retval = rts51x_read_mem(us, 0xFE77, &value, 1);
-		if (retval < 0)
+		if (retval != STATUS_SUCCESS)
 			return -EIO;
 
 		SET_BIT(value, 2);
 		retval = rts51x_write_mem(us, 0xFE77, &value, 1);
-		if (retval < 0)
+		if (retval != STATUS_SUCCESS)
 			return -EIO;
 
 		if (CHECK_ID(chip, 0x0159, 0x5888)) {
 			value = 0x01;
 			retval = rts51x_write_mem(us, 0x48, &value, 1);
-			if (retval < 0)
+			if (retval != STATUS_SUCCESS)
 				return -EIO;
 		}
 
 		retval = rts51x_read_mem(us, 0xFE47, &value, 1);
-		if (retval < 0)
+		if (retval != STATUS_SUCCESS)
 			return -EIO;
 
 		SET_BIT(value, 0);
 		if (CHECK_ID(chip, 0x0138, 0x3882))
 			SET_BIT(value, 2);
 		retval = rts51x_write_mem(us, 0xFE77, &value, 1);
-		if (retval < 0)
+		if (retval != STATUS_SUCCESS)
 			return -EIO;
 	} else {
 		if (CHECK_ID(chip, 0x0159, 0x5889) ||
 		    CHECK_ID(chip, 0x0138, 0x3880) ||
 		    CHECK_ID(chip, 0x0138, 0x3882)) {
 			retval = rts51x_read_mem(us, 0xFE47, &value, 1);
-			if (retval < 0)
+			if (retval != STATUS_SUCCESS)
 				return -EIO;
 
 			if (CHECK_ID(chip, 0x0159, 0x5889) ||
@@ -677,14 +677,14 @@ static int config_autodelink_before_power_down(struct us_data *us)
 
 			/* retval = rts51x_write_mem(us, 0xFE47, &value, 1); */
 			retval = __do_config_autodelink(us, &value, 1);
-			if (retval < 0)
+			if (retval != STATUS_SUCCESS)
 				return -EIO;
 		}
 
 		if (CHECK_ID(chip, 0x0159, 0x5888)) {
 			value = 0x01;
 			retval = rts51x_write_mem(us, 0x48, &value, 1);
-			if (retval < 0)
+			if (retval != STATUS_SUCCESS)
 				return -EIO;
 		}
 	}
