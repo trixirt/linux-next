@@ -882,7 +882,6 @@ restart:
 		work = &fallback_work;
 		*work = *base_work;
 		work->nr_pages = nr_pages;
-		work->auto_free = 0;
 		work->done = &fallback_work_done;
 
 		wb_queue_work(wb, work);
@@ -1056,10 +1055,8 @@ static void bdi_split_work_to_wbs(struct backing_dev_info *bdi,
 {
 	might_sleep();
 
-	if (!skip_if_busy || !writeback_in_progress(&bdi->wb)) {
-		base_work->auto_free = 0;
+	if (!skip_if_busy || !writeback_in_progress(&bdi->wb))
 		wb_queue_work(&bdi->wb, base_work);
-	}
 }
 
 #endif	/* CONFIG_CGROUP_WRITEBACK */
@@ -2463,6 +2460,7 @@ static void __writeback_inodes_sb_nr(struct super_block *sb, unsigned long nr,
 		.done			= &done,
 		.nr_pages		= nr,
 		.reason			= reason,
+		.auto_free		= 0,
 	};
 
 	if (!bdi_has_dirty_io(bdi) || bdi == &noop_backing_dev_info)
@@ -2542,6 +2540,7 @@ void sync_inodes_sb(struct super_block *sb)
 		.done		= &done,
 		.reason		= WB_REASON_SYNC,
 		.for_sync	= 1,
+		.auto_free	= 0,
 	};
 
 	/*
