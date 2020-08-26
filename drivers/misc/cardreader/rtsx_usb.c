@@ -304,14 +304,15 @@ int rtsx_usb_get_card_status(struct rtsx_ucr *ucr, u16 *status)
 		*status = *buf;
 
 		kfree(buf);
+
+		/* usb_control_msg may return positive when success */
+		if (ret < 0)
+			return ret;
 	} else {
 		ret = rtsx_usb_get_status_with_bulk(ucr, status);
+		if (ret)
+			return ret;
 	}
-
-	/* usb_control_msg may return positive when success */
-	if (ret < 0)
-		return ret;
-
 	return 0;
 }
 EXPORT_SYMBOL_GPL(rtsx_usb_get_card_status);
