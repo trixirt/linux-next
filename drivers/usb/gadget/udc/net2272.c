@@ -1505,17 +1505,16 @@ static int net2272_stop(struct usb_gadget *_gadget)
 static void
 net2272_handle_dma(struct net2272_ep *ep)
 {
-	struct net2272_request *req;
+	struct net2272_request *req = NULL;
 	unsigned len;
 	int status;
 
 	if (!list_empty(&ep->queue))
 		req = list_entry(ep->queue.next,
 				struct net2272_request, queue);
-	else
-		req = NULL;
 
 	dev_vdbg(ep->dev->dev, "handle_dma %s req %p\n", ep->ep.name, req);
+	BUG_ON(!req);
 
 	/* Ensure DREQ is de-asserted */
 	net2272_write(ep->dev, DMAREQ,
