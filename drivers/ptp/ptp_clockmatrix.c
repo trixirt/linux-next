@@ -1815,12 +1815,12 @@ static int idtcm_enable_tod(struct idtcm_channel *channel)
 
 static void idtcm_display_version_info(struct idtcm *idtcm)
 {
-	u8 major;
-	u8 minor;
-	u8 hotfix;
-	u16 product_id;
-	u8 hw_rev_id;
-	u8 config_select;
+	u8 major = 0;
+	u8 minor = 0;
+	u8 hotfix = 0;
+	u16 product_id = 0;
+	u8 hw_rev_id = 0;
+	u8 config_select = 0;
 	char *fmt = "%d.%d.%d, Id: 0x%04x  HW Rev: %d  OTP Config Select: %d\n";
 
 	idtcm_read_major_release(idtcm, &major);
