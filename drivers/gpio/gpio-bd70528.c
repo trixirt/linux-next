@@ -71,17 +71,14 @@ static int bd70528_gpio_set_config(struct gpio_chip *chip, unsigned int offset,
 					  GPIO_OUT_REG(offset),
 					  BD70528_GPIO_DRIVE_MASK,
 					  BD70528_GPIO_OPEN_DRAIN);
-		break;
 	case PIN_CONFIG_DRIVE_PUSH_PULL:
 		return regmap_update_bits(bdgpio->chip.regmap,
 					  GPIO_OUT_REG(offset),
 					  BD70528_GPIO_DRIVE_MASK,
 					  BD70528_GPIO_PUSH_PULL);
-		break;
 	case PIN_CONFIG_INPUT_DEBOUNCE:
 		return bd70528_set_debounce(bdgpio, offset,
 					    pinconf_to_config_argument(config));
-		break;
 	default:
 		break;
 	}
