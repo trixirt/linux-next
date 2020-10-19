@@ -202,7 +202,6 @@ ssize_t nd_namespace_store(struct device *dev,
 	default:
 		len = -EBUSY;
 		goto out_attach;
-		break;
 	}
 
 	if (__nvdimm_namespace_capacity(ndns) < SZ_16M) {
