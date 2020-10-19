@@ -870,7 +870,6 @@ int p54_parse_eeprom(struct ieee80211_hw *dev, void *eeprom, int len)
 			} else {
 				goto good_eeprom;
 			}
-			break;
 		default:
 			break;
 		}
