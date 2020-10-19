@@ -1281,7 +1281,6 @@ static int dispatch_rw_block_io(struct xen_blkif_ring *ring,
 	default:
 		operation = 0; /* make gcc happy */
 		goto fail_response;
-		break;
 	}
 
 	/* Check that the number of segments is sane. */
