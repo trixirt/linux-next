@@ -1010,7 +1010,7 @@ __unlock_ret:
 	}
 	default:
 		return -ENOIOCTLCMD;
-	};
+	}
 	return 0;
 }
 
