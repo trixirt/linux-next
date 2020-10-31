@@ -134,7 +134,7 @@ static void dbg_chgconf(int por, char *buf, size_t len, u8 chgconfig)
 		case 2:		p = 75; break;
 		case 1:		p = 50; break;
 		default:	p = 25; break;
-		}; p; }),
+		} p; }),
 		(chgconfig & TPS_VBUS_CHARGING)
 			? ((chgconfig & TPS_VBUS_500MA) ? 500 : 100)
 			: 0,
