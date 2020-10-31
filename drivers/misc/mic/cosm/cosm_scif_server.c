@@ -114,7 +114,7 @@ static void cosm_shutdown_status_int(struct cosm_device *cdev,
 		dev_err(&cdev->dev, "%s %d Unexpected shutdown_status %d\n",
 			__func__, __LINE__, shutdown_status);
 		return;
-	};
+	}
 	cdev->shutdown_status_int = shutdown_status;
 	cdev->heartbeat_watchdog_enable = false;
 
