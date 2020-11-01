@@ -707,7 +707,7 @@ static int rs5c372_probe(struct i2c_client *client,
 			case rtc_rv5c386:	s = "rv5c386"; break;
 			case rtc_rv5c387a:	s = "rv5c387a"; break;
 			default:		s = "chip"; break;
-			}; s;}),
+			} s;}),
 			rs5c372->time24 ? "24hr" : "am/pm"
 			);
 
