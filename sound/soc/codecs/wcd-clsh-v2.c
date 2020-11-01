@@ -507,7 +507,7 @@ static bool wcd_clsh_is_state_valid(int state)
 		return true;
 	default:
 		return false;
-	};
+	}
 }
 
 /*
