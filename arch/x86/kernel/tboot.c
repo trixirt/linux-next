@@ -257,7 +257,7 @@ static void tboot_copy_fadt(const struct acpi_table_fadt *fadt)
 	tbg.bit_width    = g.bit_width;		\
 	tbg.bit_offset   = g.bit_offset;	\
 	tbg.access_width = g.access_width;	\
-	tbg.address      = g.address;
+	tbg.address      = g.address
 
 	TB_COPY_GAS(tboot->acpi_sinfo.pm1a_cnt_blk, fadt->xpm1a_control_block);
 	TB_COPY_GAS(tboot->acpi_sinfo.pm1b_cnt_blk, fadt->xpm1b_control_block);
