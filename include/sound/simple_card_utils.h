@@ -111,7 +111,7 @@ int asoc_simple_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	snd_soc_of_parse_tdm_slot(np,	&(dai)->tx_slot_mask,	\
 					&(dai)->rx_slot_mask,	\
 					&(dai)->slots,		\
-					&(dai)->slot_width);
+					&(dai)->slot_width)
 
 void asoc_simple_canonicalize_platform(struct snd_soc_dai_link *dai_link);
 void asoc_simple_canonicalize_cpu(struct snd_soc_dai_link *dai_link,
