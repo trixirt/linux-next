@@ -25,7 +25,7 @@ struct scsi_driver {
 
 extern int scsi_register_driver(struct device_driver *);
 #define scsi_unregister_driver(drv) \
-	driver_unregister(drv);
+	driver_unregister(drv)
 
 extern int scsi_register_interface(struct class_interface *);
 #define scsi_unregister_interface(intf) \
