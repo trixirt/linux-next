@@ -319,7 +319,7 @@ ahd_assert_modes(struct ahd_softc *ahd, ahd_mode srcmode,
 }
 
 #define AHD_ASSERT_MODES(ahd, source, dest) \
-	ahd_assert_modes(ahd, source, dest, __FILE__, __LINE__);
+	ahd_assert_modes(ahd, source, dest, __FILE__, __LINE__)
 
 ahd_mode_state
 ahd_save_modes(struct ahd_softc *ahd)
