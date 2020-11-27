@@ -936,7 +936,7 @@ GENERATE_PERMUTATIONS_3_EVENTS(irqsafe3_soft_wlock)
 	LOCK(B);			\
 	UNLOCK(B);			\
 	UNLOCK(A);			\
-	IRQ_ENABLE();
+	IRQ_ENABLE()
 
 #define E2()				\
 	LOCK(B);			\
@@ -996,7 +996,7 @@ GENERATE_PERMUTATIONS_3_EVENTS(irqsafe4_soft_wlock)
 	LOCK(B);			\
 	UNLOCK(B);			\
 	WU(A);				\
-	IRQ_ENABLE();
+	IRQ_ENABLE()
 
 #define E2()				\
 					\
@@ -1171,7 +1171,7 @@ GENERATE_PERMUTATIONS_3_EVENTS(W1W2_R2R3_R3W1)
 	IRQ_DISABLE();			\
 	WL(A);				\
 	WU(A);				\
-	IRQ_ENABLE();
+	IRQ_ENABLE()
 
 #define E2()				\
 					\
@@ -1219,7 +1219,7 @@ GENERATE_PERMUTATIONS_3_EVENTS(irq_read_recursion_soft_wlock)
 	LOCK(A);			\
 	UNLOCK(A);			\
 	U(B);				\
-	IRQ_ENABLE();
+	IRQ_ENABLE()
 
 #define E2()				\
 					\
@@ -1273,7 +1273,7 @@ GENERATE_PERMUTATIONS_3_EVENTS(irq_read_recursion2_soft_wlock)
 	LOCK(A);			\
 	UNLOCK(A);			\
 	WU(B);				\
-	IRQ_ENABLE();
+	IRQ_ENABLE()
 
 #define E2()				\
 					\
