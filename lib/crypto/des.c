@@ -590,7 +590,7 @@ static const u32 S8[64] = {
 	L ^= S4[0xff & B];					\
 	L ^= S2[0xff & (B >> 8)];				\
 	L ^= S3[0xff & A];					\
-	L ^= S1[0xff & (A >> 8)];
+	L ^= S1[0xff & (A >> 8)]
 
 /*
  * PC2 lookup tables are organized as 2 consecutive sets of 4 interleaved
