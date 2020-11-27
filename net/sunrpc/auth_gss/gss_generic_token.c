@@ -46,7 +46,7 @@
 /* TWRITE_STR from gssapiP_generic.h */
 #define TWRITE_STR(ptr, str, len) \
 	memcpy((ptr), (char *) (str), (len)); \
-	(ptr) += (len);
+	(ptr) += (len)
 
 /* XXXX this code currently makes the assumption that a mech oid will
    never be longer than 127 bytes.  This assumption is not inherent in
