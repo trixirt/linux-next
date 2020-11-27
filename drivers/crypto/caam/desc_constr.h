@@ -410,7 +410,7 @@ APPEND_CMD_RAW_IMM2(load, LOAD, be, 32);
  */
 #define APPEND_MATH(op, desc, dest, src_0, src_1, len) \
 append_cmd(desc, CMD_MATH | MATH_FUN_##op | MATH_DEST_##dest | \
-	MATH_SRC0_##src_0 | MATH_SRC1_##src_1 | (u32)len);
+	MATH_SRC0_##src_0 | MATH_SRC1_##src_1 | (u32)len)
 
 #define append_math_add(desc, dest, src0, src1, len) \
 	APPEND_MATH(ADD, desc, dest, src0, src1, len)
