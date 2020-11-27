@@ -54,6 +54,7 @@ my $scm = 0;
 my $tree = 1;
 my $web = 0;
 my $subsystem = 0;
+my $subsystem_commit_prefix = 0;
 my $status = 0;
 my $letters = "";
 my $keywords = 1;
@@ -265,6 +266,7 @@ if (!GetOptions(
 		'rolestats!' => \$output_rolestats,
 		'separator=s' => \$output_separator,
 		'subsystem!' => \$subsystem,
+		'subsystem_commit_prefix!' => \$subsystem_commit_prefix,
 		'status!' => \$status,
 		'scm!' => \$scm,
 		'tree!' => \$tree,
@@ -316,13 +318,14 @@ if ($sections || $letters ne "") {
     $scm = 0;
     $status = 0;
     $subsystem = 0;
+    $subsystem_commit_prefix = 0;
     $web = 0;
     $keywords = 0;
     $interactive = 0;
 } else {
-    my $selections = $email + $scm + $status + $subsystem + $web;
+    my $selections = $email + $scm + $status + $subsystem + $subsystem_commit_prefix + $web;
     if ($selections == 0) {
-	die "$P:  Missing required option: email, scm, status, subsystem or web\n";
+	die "$P:  Missing required option: email, scm, status, subsystem, subsystem_commit_prefix or web\n";
     }
 }
 
@@ -630,6 +633,7 @@ my @list_to = ();
 my @scm = ();
 my @web = ();
 my @subsystem = ();
+my @subsystem_commit_prefix = ();
 my @status = ();
 my %deduplicate_name_hash = ();
 my %deduplicate_address_hash = ();
@@ -653,6 +657,11 @@ if ($status) {
 if ($subsystem) {
     @subsystem = uniq(@subsystem);
     output(@subsystem);
+}
+
+if ($subsystem_commit_prefix) {
+    @subsystem_commit_prefix = uniq(@subsystem_commit_prefix);
+    output(@subsystem_commit_prefix);
 }
 
 if ($web) {
@@ -846,6 +855,7 @@ sub get_maintainers {
     @scm = ();
     @web = ();
     @subsystem = ();
+    @subsystem_commit_prefix = ();
     @status = ();
     %deduplicate_name_hash = ();
     %deduplicate_address_hash = ();
@@ -1065,6 +1075,7 @@ MAINTAINER field selection options:
   --scm => print SCM tree(s) if any
   --status => print status if any
   --subsystem => print subsystem name if any
+  --subsystem_commit_prefix => print subsystem commit prefix if any
   --web => print website(s) if any
 
 Output type options:
@@ -1324,7 +1335,9 @@ sub add_categories {
 	if ($tv =~ m/^([A-Z]):\s*(.*)/) {
 	    my $ptype = $1;
 	    my $pvalue = $2;
-	    if ($ptype eq "L") {
+	    if ($ptype eq "D") {
+		push(@subsystem_commit_prefix, $pvalue);
+	    } elsif ($ptype eq "L") {
 		my $list_address = $pvalue;
 		my $list_additional = "";
 		my $list_role = get_list_role($i);
