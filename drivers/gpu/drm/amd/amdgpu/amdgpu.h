@@ -1213,7 +1213,7 @@ int emu_soc_asic_init(struct amdgpu_device *adev);
 #define amdgpu_asic_update_umd_stable_pstate(adev, enter) \
 	((adev)->asic_funcs->update_umd_stable_pstate ? (adev)->asic_funcs->update_umd_stable_pstate((adev), (enter)) : 0)
 
-#define amdgpu_inc_vram_lost(adev) atomic_inc(&((adev)->vram_lost_counter));
+#define amdgpu_inc_vram_lost(adev) atomic_inc(&((adev)->vram_lost_counter))
 
 /* Common functions */
 bool amdgpu_device_has_job_running(struct amdgpu_device *adev);
