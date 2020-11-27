@@ -526,7 +526,7 @@ out:
 	(dst)->l_whence = (src)->l_whence;	\
 	(dst)->l_start = (src)->l_start;	\
 	(dst)->l_len = (src)->l_len;		\
-	(dst)->l_pid = (src)->l_pid;
+	(dst)->l_pid = (src)->l_pid
 
 static int get_compat_flock(struct flock *kfl, const struct compat_flock __user *ufl)
 {
