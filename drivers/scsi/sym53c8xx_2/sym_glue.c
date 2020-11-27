@@ -1001,12 +1001,12 @@ static int is_keyword(char *ptr, int len, char *verb)
 #define SKIP_SPACES(ptr, len)						\
 	if ((arg_len = sym_skip_spaces(ptr, len)) < 1)			\
 		return -EINVAL;						\
-	ptr += arg_len; len -= arg_len;
+	ptr += arg_len; len -= arg_len
 
 #define GET_INT_ARG(ptr, len, v)					\
 	if (!(arg_len = get_int_arg(ptr, len, &(v))))			\
 		return -EINVAL;						\
-	ptr += arg_len; len -= arg_len;
+	ptr += arg_len; len -= arg_len
 
 
 /*
