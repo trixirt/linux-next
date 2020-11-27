@@ -81,7 +81,7 @@ int nft_flow_rule_offload_commit(struct net *net);
 
 #define NFT_OFFLOAD_MATCH_EXACT(__key, __base, __field, __len, __reg)	\
 	NFT_OFFLOAD_MATCH(__key, __base, __field, __len, __reg)		\
-	memset(&(__reg)->mask, 0xff, (__reg)->len);
+	memset(&(__reg)->mask, 0xff, (__reg)->len)
 
 int nft_chain_offload_priority(struct nft_base_chain *basechain);
 
