@@ -1292,7 +1292,7 @@ __vgpu_read(64)
 
 #define GEN2_READ_HEADER(x) \
 	u##x val = 0; \
-	assert_rpm_wakelock_held(uncore->rpm);
+	assert_rpm_wakelock_held(uncore->rpm)
 
 #define GEN2_READ_FOOTER \
 	trace_i915_reg_rw(false, reg, val, sizeof(val), trace); \
