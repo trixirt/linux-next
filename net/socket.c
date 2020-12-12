@@ -451,10 +451,8 @@ static int sock_map_fd(struct socket *sock, int flags)
 
 struct socket *sock_from_file(struct file *file)
 {
-	if (file->f_op == &socket_file_ops) {
-		*err = 0;
+	if (file->f_op == &socket_file_ops)
 		return file->private_data;	/* set in sock_map_fd */
-	}
 
 	return NULL;
 }
