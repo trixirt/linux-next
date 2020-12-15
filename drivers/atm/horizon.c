@@ -1609,7 +1609,7 @@ static int hrz_send (struct atm_vcc * atm_vcc, struct sk_buff * skb) {
     if (*s++ == 'D') {
 	for (i = 0; i < 4; ++i)
 		d = (d << 4) | hex_to_bin(*s++);
-      PRINTK (KERN_INFO, "debug bitmap is now %hx", debug = d);
+      PRINTK (KERN_INFO, "debug bitmap is now %x", debug = d);
     }
   }
 #endif
@@ -2675,7 +2675,7 @@ static int hrz_probe(struct pci_dev *pci_dev,
 		       "changing", lat, pci_lat);
 		pci_write_config_byte(pci_dev, PCI_LATENCY_TIMER, pci_lat);
 	} else if (lat < MIN_PCI_LATENCY) {
-		PRINTK(KERN_INFO, "%s PCI latency timer from %hu to %hu",
+		PRINTK(KERN_INFO, "%s PCI latency timer from %u to %u",
 		       "increasing", lat, MIN_PCI_LATENCY);
 		pci_write_config_byte(pci_dev, PCI_LATENCY_TIMER, MIN_PCI_LATENCY);
 	}
@@ -2777,7 +2777,7 @@ static void hrz_remove_one(struct pci_dev *pci_dev)
 
 static void __init hrz_check_args (void) {
 #ifdef DEBUG_HORIZON
-  PRINTK (KERN_NOTICE, "debug bitmap is %hx", debug &= DBG_MASK);
+  PRINTK (KERN_NOTICE, "debug bitmap is %x", debug &= DBG_MASK);
 #else
   if (debug)
     PRINTK (KERN_NOTICE, "no debug support in this image");
