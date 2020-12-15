@@ -2169,7 +2169,7 @@ static void setup_pci_dev(struct pci_dev *pci_dev)
 		pci_lat = (lat < MIN_PCI_LATENCY) ? MIN_PCI_LATENCY : lat;
 
 	if (lat != pci_lat) {
-		PRINTK (KERN_INFO, "Changing PCI latency timer from %hu to %hu",
+		PRINTK (KERN_INFO, "Changing PCI latency timer from %u to %u",
 			lat, pci_lat);
 		pci_write_config_byte(pci_dev, PCI_LATENCY_TIMER, pci_lat);
 	}
@@ -2300,7 +2300,7 @@ static void __init amb_check_args (void) {
   unsigned int max_rx_size;
   
 #ifdef DEBUG_AMBASSADOR
-  PRINTK (KERN_NOTICE, "debug bitmap is %hx", debug &= DBG_MASK);
+  PRINTK (KERN_NOTICE, "debug bitmap is %x", debug &= DBG_MASK);
 #else
   if (debug)
     PRINTK (KERN_NOTICE, "no debugging support");
