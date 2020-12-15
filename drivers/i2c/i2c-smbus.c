@@ -396,7 +396,7 @@ void i2c_register_spd(struct i2c_adapter *adap)
 
 		if (!IS_ERR(i2c_new_scanned_device(adap, &info, addr_list, NULL))) {
 			dev_info(&adap->dev,
-				 "Successfully instantiated SPD at 0x%hx\n",
+				 "Successfully instantiated SPD at 0x%x\n",
 				 addr_list[0]);
 			dimm_count--;
 		}
