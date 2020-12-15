@@ -486,13 +486,13 @@ static void show_ldttss(const struct desc_ptr *gdt, const char *name, u16 index)
 	}
 
 	if (offset + sizeof(struct ldttss_desc) >= gdt->size) {
-		pr_alert("%s: 0x%hx -- out of bounds\n", name, index);
+		pr_alert("%s: 0x%x -- out of bounds\n", name, index);
 		return;
 	}
 
 	if (copy_from_kernel_nofault(&desc, (void *)(gdt->address + offset),
 			      sizeof(struct ldttss_desc))) {
-		pr_alert("%s: 0x%hx -- GDT entry is not readable\n",
+		pr_alert("%s: 0x%x -- GDT entry is not readable\n",
 			 name, index);
 		return;
 	}
@@ -501,7 +501,7 @@ static void show_ldttss(const struct desc_ptr *gdt, const char *name, u16 index)
 #ifdef CONFIG_X86_64
 	addr |= ((u64)desc.base3 << 32);
 #endif
-	pr_alert("%s: 0x%hx -- base=0x%lx limit=0x%x\n",
+	pr_alert("%s: 0x%x -- base=0x%lx limit=0x%x\n",
 		 name, index, addr, (desc.limit0 | (desc.limit1 << 16)));
 }
 
@@ -569,7 +569,7 @@ show_fault_oops(struct pt_regs *regs, unsigned long error_code, unsigned long ad
 		/* Usable even on Xen PV -- it's just slow. */
 		native_store_gdt(&gdt);
 
-		pr_alert("IDT: 0x%lx (limit=0x%hx) GDT: 0x%lx (limit=0x%hx)\n",
+		pr_alert("IDT: 0x%lx (limit=0x%x) GDT: 0x%lx (limit=0x%x)\n",
 			 idt.address, idt.size, gdt.address, gdt.size);
 
 		store_ldt(ldtr);
