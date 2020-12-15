@@ -755,7 +755,7 @@ void intel_sseu_print_topology(const struct sseu_dev_info *sseu,
 		for (ss = 0; ss < sseu->max_subslices; ss++) {
 			u16 enabled_eus = sseu_get_eus(sseu, s, ss);
 
-			drm_printf(p, "\tsubslice%d: %u EUs (0x%hx)\n",
+			drm_printf(p, "\tsubslice%d: %u EUs (0x%x)\n",
 				   ss, hweight16(enabled_eus), enabled_eus);
 		}
 	}
