@@ -50,7 +50,8 @@ def run_analysis(entry):
     fix = ""
     header_filter = ""
     if args.type == "clang-tidy-fix":
-        checks += "linuxkernel-macro-trailing-semi"
+        checks += "linuxkernel-log-functions"
+        # checks += "linuxkernel-macro-trailing-semi"
         #
         # Fix this
         # #define M(a) a++; <-- clang-tidy fixes the problem here
