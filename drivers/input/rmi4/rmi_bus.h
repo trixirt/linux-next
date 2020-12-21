@@ -195,5 +195,6 @@ int rmi_of_property_read_u32(struct device *dev, u32 *result,
 #define RMI_DEBUG_FN			BIT(2)
 #define RMI_DEBUG_2D_SENSOR		BIT(3)
 
+__printf(3, 4)
 void rmi_dbg(int flags, struct device *dev, const char *fmt, ...);
 #endif
