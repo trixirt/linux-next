@@ -17,6 +17,7 @@
 #define INFO(fmt, args...) yprintk(KERN_INFO, fmt, ## args)
 #define ERR(fmt, args...) yprintk(KERN_ERR, fmt, ## args)
 
+__printf(2, 3)
 void musb_dbg(struct musb *musb, const char *fmt, ...);
 
 #ifdef CONFIG_DEBUG_FS
