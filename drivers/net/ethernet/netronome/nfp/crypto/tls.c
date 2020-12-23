@@ -486,7 +486,7 @@ int nfp_net_tls_rx_resync_req(struct net_device *netdev,
 	th = pkt + req->l4_offset;
 
 	if ((u8 *)&th[1] > (u8 *)pkt + pkt_len) {
-		netdev_warn_once(netdev, "invalid TLS RX resync request (l3_off: %hhu l4_off: %hhu pkt_len: %u)\n",
+		netdev_warn_once(netdev, "invalid TLS RX resync request (l3_off: %u l4_off: %u pkt_len: %u)\n",
 				 req->l3_offset, req->l4_offset, pkt_len);
 		err = -EINVAL;
 		goto err_cnt_ign;
@@ -507,7 +507,7 @@ int nfp_net_tls_rx_resync_req(struct net_device *netdev,
 		break;
 #endif
 	default:
-		netdev_warn_once(netdev, "invalid TLS RX resync request (l3_off: %hhu l4_off: %hhu ipver: %u)\n",
+		netdev_warn_once(netdev, "invalid TLS RX resync request (l3_off: %u l4_off: %u ipver: %u)\n",
 				 req->l3_offset, req->l4_offset, iph->version);
 		err = -EINVAL;
 		goto err_cnt_ign;

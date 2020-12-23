@@ -195,7 +195,7 @@ int nfp_cpp_mutex_lock(struct nfp_cpp_mutex *mutex)
 		if (time_is_before_eq_jiffies(warn_at)) {
 			warn_at = jiffies + NFP_MUTEX_WAIT_NEXT_WARN * HZ;
 			nfp_warn(mutex->cpp,
-				 "Warning: waiting for NFP mutex [depth:%hd target:%d addr:%llx key:%08x]\n",
+				 "Warning: waiting for NFP mutex [depth:%d target:%d addr:%llx key:%08x]\n",
 				 mutex->depth,
 				 mutex->target, mutex->address, mutex->key);
 		}
