@@ -410,7 +410,7 @@ static int qed_llh_alloc(struct qed_dev *cdev)
 			continue;
 
 		p_llh_info->ppfid_array[p_llh_info->num_ppfid] = i;
-		DP_VERBOSE(cdev, QED_MSG_SP, "ppfid_array[%d] = %hhd\n",
+		DP_VERBOSE(cdev, QED_MSG_SP, "ppfid_array[%d] = %d\n",
 			   p_llh_info->num_ppfid, i);
 		p_llh_info->num_ppfid++;
 	}
@@ -624,7 +624,7 @@ static int qed_llh_abs_ppfid(struct qed_dev *cdev, u8 ppfid, u8 *p_abs_ppfid)
 
 	if (ppfid >= p_llh_info->num_ppfid) {
 		DP_NOTICE(cdev,
-			  "ppfid %d is not valid, available indices are 0..%hhd\n",
+			  "ppfid %d is not valid, available indices are 0..%d\n",
 			  ppfid, p_llh_info->num_ppfid - 1);
 		*p_abs_ppfid = 0;
 		return -EINVAL;
@@ -988,13 +988,13 @@ int qed_llh_add_mac_filter(struct qed_dev *cdev,
 
 	DP_VERBOSE(cdev,
 		   QED_MSG_SP,
-		   "LLH: Added MAC filter [%pM] to ppfid %hhd [abs %hhd] at idx %hhd [ref_cnt %d]\n",
+		   "LLH: Added MAC filter [%pM] to ppfid %d [abs %d] at idx %d [ref_cnt %d]\n",
 		   mac_addr, ppfid, abs_ppfid, filter_idx, ref_cnt);
 
 	goto out;
 
 err:	DP_NOTICE(cdev,
-		  "LLH: Failed to add MAC filter [%pM] to ppfid %hhd\n",
+		  "LLH: Failed to add MAC filter [%pM] to ppfid %d\n",
 		  mac_addr, ppfid);
 out:
 	qed_ptt_release(p_hwfn, p_ptt);
@@ -1134,13 +1134,13 @@ qed_llh_add_protocol_filter(struct qed_dev *cdev,
 
 	DP_VERBOSE(cdev,
 		   QED_MSG_SP,
-		   "LLH: Added protocol filter [%s] to ppfid %hhd [abs %hhd] at idx %hhd [ref_cnt %d]\n",
+		   "LLH: Added protocol filter [%s] to ppfid %d [abs %d] at idx %d [ref_cnt %d]\n",
 		   str, ppfid, abs_ppfid, filter_idx, ref_cnt);
 
 	goto out;
 
 err:	DP_NOTICE(p_hwfn,
-		  "LLH: Failed to add protocol filter [%s] to ppfid %hhd\n",
+		  "LLH: Failed to add protocol filter [%s] to ppfid %d\n",
 		  str, ppfid);
 out:
 	qed_ptt_release(p_hwfn, p_ptt);
@@ -1184,13 +1184,13 @@ void qed_llh_remove_mac_filter(struct qed_dev *cdev,
 
 	DP_VERBOSE(cdev,
 		   QED_MSG_SP,
-		   "LLH: Removed MAC filter [%pM] from ppfid %hhd [abs %hhd] at idx %hhd [ref_cnt %d]\n",
+		   "LLH: Removed MAC filter [%pM] from ppfid %d [abs %d] at idx %d [ref_cnt %d]\n",
 		   mac_addr, ppfid, abs_ppfid, filter_idx, ref_cnt);
 
 	goto out;
 
 err:	DP_NOTICE(cdev,
-		  "LLH: Failed to remove MAC filter [%pM] from ppfid %hhd\n",
+		  "LLH: Failed to remove MAC filter [%pM] from ppfid %d\n",
 		  mac_addr, ppfid);
 out:
 	qed_ptt_release(p_hwfn, p_ptt);
@@ -1242,13 +1242,13 @@ void qed_llh_remove_protocol_filter(struct qed_dev *cdev,
 
 	DP_VERBOSE(cdev,
 		   QED_MSG_SP,
-		   "LLH: Removed protocol filter [%s] from ppfid %hhd [abs %hhd] at idx %hhd [ref_cnt %d]\n",
+		   "LLH: Removed protocol filter [%s] from ppfid %d [abs %d] at idx %d [ref_cnt %d]\n",
 		   str, ppfid, abs_ppfid, filter_idx, ref_cnt);
 
 	goto out;
 
 err:	DP_NOTICE(cdev,
-		  "LLH: Failed to remove protocol filter [%s] from ppfid %hhd\n",
+		  "LLH: Failed to remove protocol filter [%s] from ppfid %d\n",
 		  str, ppfid);
 out:
 	qed_ptt_release(p_hwfn, p_ptt);
@@ -3865,7 +3865,7 @@ static int qed_hw_get_ppfid_bitmap(struct qed_hwfn *p_hwfn,
 
 	if (!(cdev->ppfid_bitmap & (0x1 << native_ppfid_idx))) {
 		DP_INFO(p_hwfn,
-			"Fix the PPFID bitmap to include the native PPFID [native_ppfid_idx %hhd, orig_bitmap 0x%hhx]\n",
+			"Fix the PPFID bitmap to include the native PPFID [native_ppfid_idx %d, orig_bitmap 0x%x]\n",
 			native_ppfid_idx, cdev->ppfid_bitmap);
 		cdev->ppfid_bitmap = 0x1 << native_ppfid_idx;
 	}

@@ -3940,7 +3940,7 @@ int qed_mcp_get_engine_config(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 				      FW_MB_PARAM_ENG_CFG_L2_AFFIN_VALUE);
 
 	DP_INFO(p_hwfn,
-		"Engine affinity config: FIR={valid %hhd, value %hhd}, L2_hint={valid %hhd, value %hhd}\n",
+		"Engine affinity config: FIR={valid %d, value %d}, L2_hint={valid %d, value %d}\n",
 		fir_valid, cdev->fir_affin, l2_valid, cdev->l2_affin_hint);
 
 	return 0;
@@ -3966,7 +3966,7 @@ int qed_mcp_get_ppfid_bitmap(struct qed_hwfn *p_hwfn, struct qed_ptt *p_ptt)
 	cdev->ppfid_bitmap = QED_MFW_GET_FIELD(mb_params.mcp_param,
 					       FW_MB_PARAM_PPFID_BITMAP);
 
-	DP_VERBOSE(p_hwfn, QED_MSG_SP, "PPFID bitmap 0x%hhx\n",
+	DP_VERBOSE(p_hwfn, QED_MSG_SP, "PPFID bitmap 0x%x\n",
 		   cdev->ppfid_bitmap);
 
 	return 0;
