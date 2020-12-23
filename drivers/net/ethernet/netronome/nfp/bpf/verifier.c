@@ -828,7 +828,7 @@ int nfp_bpf_opt_replace_insn(struct bpf_verifier_env *env, u32 off,
 		return 0;
 	}
 
-	pr_vlog(env, "unsupported instruction replacement %hhx -> %hhx\n",
+	pr_vlog(env, "unsupported instruction replacement %x -> %x\n",
 		meta->insn.code, insn->code);
 	return -EINVAL;
 }

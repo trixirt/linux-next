@@ -247,12 +247,12 @@ static int nfp_nsp_check(struct nfp_nsp *state)
 	state->ver.minor = FIELD_GET(NSP_STATUS_MINOR, reg);
 
 	if (state->ver.major != NSP_MAJOR) {
-		nfp_err(cpp, "Unsupported ABI %hu.%hu\n",
+		nfp_err(cpp, "Unsupported ABI %u.%u\n",
 			state->ver.major, state->ver.minor);
 		return -EINVAL;
 	}
 	if (state->ver.minor < NSP_MINOR) {
-		nfp_err(cpp, "ABI too old to support NIC operation (%u.%hu < %u.%u), please update the management FW on the flash\n",
+		nfp_err(cpp, "ABI too old to support NIC operation (%u.%u < %u.%u), please update the management FW on the flash\n",
 			NSP_MAJOR, state->ver.minor, NSP_MAJOR, NSP_MINOR);
 		return -EINVAL;
 	}
@@ -662,7 +662,7 @@ nfp_nsp_command_buf(struct nfp_nsp *nsp, struct nfp_nsp_command_buf_arg *arg)
 	int err;
 
 	if (nsp->ver.minor < 13) {
-		nfp_err(cpp, "NSP: Code 0x%04x with buffer not supported (ABI %hu.%hu)\n",
+		nfp_err(cpp, "NSP: Code 0x%04x with buffer not supported (ABI %u.%u)\n",
 			arg->arg.code, nsp->ver.major, nsp->ver.minor);
 		return -EOPNOTSUPP;
 	}
