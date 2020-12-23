@@ -1823,7 +1823,7 @@ static void velocity_error(struct velocity_info *vptr, int status)
 	if (status & ISR_TXSTLI) {
 		struct mac_regs __iomem *regs = vptr->mac_regs;
 
-		netdev_err(vptr->netdev, "TD structure error TDindex=%hx\n",
+		netdev_err(vptr->netdev, "TD structure error TDindex=%x\n",
 			   readw(&regs->TDIdx[0]));
 		BYTE_REG_BITS_ON(TXESR_TDSTR, &regs->TXESR);
 		writew(TRDCSR_RUN, &regs->TDCSRClr);
