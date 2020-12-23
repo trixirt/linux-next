@@ -2540,7 +2540,7 @@ bool opal_unlock_from_suspend(struct opal_dev *dev)
 
 		ret = __opal_lock_unlock(dev, &suspend->unlk);
 		if (ret) {
-			pr_debug("Failed to unlock LR %hhu with sum %d\n",
+			pr_debug("Failed to unlock LR %u with sum %d\n",
 				 suspend->unlk.session.opal_key.lr,
 				 suspend->unlk.session.sum);
 			was_failure = true;
