@@ -968,7 +968,7 @@ static int qed_slowpath_setup_int(struct qed_dev *cdev,
 
 	if (is_kdump_kernel()) {
 		DP_INFO(cdev,
-			"Kdump kernel: Limit the max number of requested MSI-X vectors to %hd\n",
+			"Kdump kernel: Limit the max number of requested MSI-X vectors to %d\n",
 			cdev->int_params.in.min_msix_cnt);
 		cdev->int_params.in.num_vectors =
 			cdev->int_params.in.min_msix_cnt;
