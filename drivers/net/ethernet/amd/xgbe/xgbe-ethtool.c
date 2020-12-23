@@ -339,14 +339,14 @@ static int xgbe_set_link_ksettings(struct net_device *netdev,
 	speed = cmd->base.speed;
 
 	if (cmd->base.phy_address != pdata->phy.address) {
-		netdev_err(netdev, "invalid phy address %hhu\n",
+		netdev_err(netdev, "invalid phy address %u\n",
 			   cmd->base.phy_address);
 		return -EINVAL;
 	}
 
 	if ((cmd->base.autoneg != AUTONEG_ENABLE) &&
 	    (cmd->base.autoneg != AUTONEG_DISABLE)) {
-		netdev_err(netdev, "unsupported autoneg %hhu\n",
+		netdev_err(netdev, "unsupported autoneg %u\n",
 			   cmd->base.autoneg);
 		return -EINVAL;
 	}
@@ -358,7 +358,7 @@ static int xgbe_set_link_ksettings(struct net_device *netdev,
 		}
 
 		if (cmd->base.duplex != DUPLEX_FULL) {
-			netdev_err(netdev, "unsupported duplex %hhu\n",
+			netdev_err(netdev, "unsupported duplex %u\n",
 				   cmd->base.duplex);
 			return -EINVAL;
 		}
