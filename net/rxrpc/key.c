@@ -587,19 +587,18 @@ static long rxrpc_read(const struct key *key,
 	for (token = key->payload.data[0]; token; token = token->next) {
 		toksize = 4;	/* sec index */
 
-		switch (token->security_index) {
-		case RXRPC_SECURITY_RXKAD:
-			toksize += 8 * 4;	/* viceid, kvno, key*2, begin,
-						 * end, primary, tktlen */
-			if (!token->no_leak_key)
-				toksize += RND(token->kad->ticket_len);
-			break;
-
-		default: /* we have a ticket we can't encode */
+		if (token->security_index != RXRPC_SECURITY_RXKAD) {
+			/* we have a ticket we can't encode */
 			pr_err("Unsupported key token type (%u)\n",
 			       token->security_index);
 			continue;
 		}
+
+		/* viceid, kvno, key*2, begin, end, primary, tktlen */
+		toksize += 8 * 4;
+
+		if (!token->no_leak_key)
+			toksize += RND(token->kad->ticket_len);
 
 		_debug("token[%u]: toksize=%u", ntoks, toksize);
 		ASSERTCMP(toksize, <=, AFSTOKEN_LENGTH_MAX);
@@ -654,28 +653,25 @@ static long rxrpc_read(const struct key *key,
 
 	tok = 0;
 	for (token = key->payload.data[0]; token; token = token->next) {
+		/* error reported above */
+		if (token->security_index != RXRPC_SECURITY_RXKAD)
+			continue;
+
 		toksize = toksizes[tok++];
 		ENCODE(toksize);
 		oldxdr = xdr;
 		ENCODE(token->security_index);
 
-		switch (token->security_index) {
-		case RXRPC_SECURITY_RXKAD:
-			ENCODE(token->kad->vice_id);
-			ENCODE(token->kad->kvno);
-			ENCODE_BYTES(8, token->kad->session_key);
-			ENCODE(token->kad->start);
-			ENCODE(token->kad->expiry);
-			ENCODE(token->kad->primary_flag);
-			if (token->no_leak_key)
-				ENCODE(0);
-			else
-				ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
-			break;
-
-		default:
-			break;
-		}
+		ENCODE(token->kad->vice_id);
+		ENCODE(token->kad->kvno);
+		ENCODE_BYTES(8, token->kad->session_key);
+		ENCODE(token->kad->start);
+		ENCODE(token->kad->expiry);
+		ENCODE(token->kad->primary_flag);
+		if (token->no_leak_key)
+			ENCODE(0);
+		else
+			ENCODE_DATA(token->kad->ticket_len, token->kad->ticket);
 
 		ASSERTCMP((unsigned long)xdr - (unsigned long)oldxdr, ==,
 			  toksize);
