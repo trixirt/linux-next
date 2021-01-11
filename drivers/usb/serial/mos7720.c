@@ -214,6 +214,7 @@ static int read_mos_reg(struct usb_serial *serial, unsigned int serial_portnum,
 	u8 *buf;
 	int status;
 
+	*data = 0;
 	buf = kmalloc(1, GFP_KERNEL);
 	if (!buf)
 		return -ENOMEM;
@@ -227,7 +228,6 @@ static int read_mos_reg(struct usb_serial *serial, unsigned int serial_portnum,
 			"mos7720: usb_control_msg() failed: %d\n", status);
 		if (status >= 0)
 			status = -EIO;
-		*data = 0;
 	}
 
 	kfree(buf);
