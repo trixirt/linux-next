@@ -50,7 +50,8 @@ def run_analysis(entry):
     fix = ""
     header_filter = ""
     if args.type == "clang-tidy-fix":
-        checks += "linuxkernel-log-functions"
+        checks += "linuxkernel-macro-usage"
+        # checks += "linuxkernel-log-functions"
         # checks += "linuxkernel-macro-trailing-semi"
         #
         # Fix this
