@@ -12,8 +12,6 @@
 #ifndef S5P_MFC_DEBUG_H_
 #define S5P_MFC_DEBUG_H_
 
-#define DEBUG
-
 #ifdef DEBUG
 extern int mfc_debug_level;
 
