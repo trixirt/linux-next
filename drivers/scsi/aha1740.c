@@ -338,8 +338,8 @@ static int aha1740_queuecommand_lck(struct scsi_cmnd * SCpnt,
 		i = scsi2int(cmd+2);
 	else
 		i = -1;
-	printk("aha1740_queuecommand: dev %d cmd %02x pos %d len %d ",
-	       target, *cmd, i, bufflen);
+	printk("aha1740_queuecommand: dev %d cmd %02x pos %d",
+	       target, *cmd, i);
 	printk("scsi cmd:");
 	for (i = 0; i < SCpnt->cmd_len; i++) printk("%02x ", cmd[i]);
 	printk("\n");
