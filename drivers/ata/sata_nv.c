@@ -603,7 +603,7 @@ static void nv_adma_register_mode(struct ata_port *ap)
 		count++;
 	}
 	if (count == 20)
-		ata_port_warn(ap, "timeout waiting for ADMA IDLE, stat=0x%hx\n",
+		ata_port_warn(ap, "timeout waiting for ADMA IDLE, stat=0x%x\n",
 			      status);
 
 	tmp = readw(mmio + NV_ADMA_CTL);
@@ -618,7 +618,7 @@ static void nv_adma_register_mode(struct ata_port *ap)
 	}
 	if (count == 20)
 		ata_port_warn(ap,
-			      "timeout waiting for ADMA LEGACY, stat=0x%hx\n",
+			      "timeout waiting for ADMA LEGACY, stat=0x%x\n",
 			      status);
 
 	pp->flags |= NV_ADMA_PORT_REGISTER_MODE;
@@ -648,7 +648,7 @@ static void nv_adma_mode(struct ata_port *ap)
 	}
 	if (count == 20)
 		ata_port_warn(ap,
-			"timeout waiting for ADMA LEGACY clear and IDLE, stat=0x%hx\n",
+			"timeout waiting for ADMA LEGACY clear and IDLE, stat=0x%x\n",
 			status);
 
 	pp->flags &= ~NV_ADMA_PORT_REGISTER_MODE;
@@ -736,7 +736,7 @@ static int nv_adma_slave_config(struct scsi_device *sdev)
 	blk_queue_segment_boundary(sdev->request_queue, segment_boundary);
 	blk_queue_max_segments(sdev->request_queue, sg_tablesize);
 	ata_port_info(ap,
-		      "DMA mask 0x%llX, segment boundary 0x%lX, hw segs %hu\n",
+		      "DMA mask 0x%llX, segment boundary 0x%lX, hw segs %u\n",
 		      (unsigned long long)*ap->host->dev->dma_mask,
 		      segment_boundary, sg_tablesize);
 
