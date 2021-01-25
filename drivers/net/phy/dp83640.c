@@ -186,7 +186,7 @@ static void dp83640_gpio_defaults(struct ptp_pin_desc *pd)
 
 	for (i = 0; i < GPIO_TABLE_SIZE; i++) {
 		if (gpio_tab[i] < 1 || gpio_tab[i] > DP83640_N_PINS) {
-			pr_err("gpio_tab[%d]=%hu out of range", i, gpio_tab[i]);
+			pr_err("gpio_tab[%d]=%u out of range", i, gpio_tab[i]);
 			return;
 		}
 	}
