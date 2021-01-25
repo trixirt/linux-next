@@ -1193,7 +1193,7 @@ static void enq_receive_complete(struct net_device *ndev,
 	}
 
 	if (unlikely(!avail)) {
-		netdev_err(ndev, "Recv_comp full buf q:%hd, tid:%llx\n",
+		netdev_err(ndev, "Recv_comp full buf q:%d, tid:%llx\n",
 			   q_idx, tid);
 		return;
 	}
