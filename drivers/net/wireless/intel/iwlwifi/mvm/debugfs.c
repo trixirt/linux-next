@@ -326,10 +326,10 @@ static ssize_t iwl_dbgfs_sar_geo_profile_read(struct file *file,
 		pos += scnprintf(buf + pos, bufsz - pos,
 				 "Use geographic profile %d\n", tbl_idx);
 		pos += scnprintf(buf + pos, bufsz - pos,
-				 "2.4GHz:\n\tChain A offset: %hhu dBm\n\tChain B offset: %hhu dBm\n\tmax tx power: %hhu dBm\n",
+				 "2.4GHz:\n\tChain A offset: %u dBm\n\tChain B offset: %u dBm\n\tmax tx power: %u dBm\n",
 				 value[1], value[2], value[0]);
 		pos += scnprintf(buf + pos, bufsz - pos,
-				 "5.2GHz:\n\tChain A offset: %hhu dBm\n\tChain B offset: %hhu dBm\n\tmax tx power: %hhu dBm\n",
+				 "5.2GHz:\n\tChain A offset: %u dBm\n\tChain B offset: %u dBm\n\tmax tx power: %u dBm\n",
 				 value[4], value[5], value[3]);
 	}
 	mutex_unlock(&mvm->mutex);
@@ -1035,7 +1035,7 @@ iwl_dbgfs_scan_ant_rxchain_read(struct file *file,
 		pos += scnprintf(buf + pos, bufsz - pos, "B");
 	if (mvm->scan_rx_ant & ANT_C)
 		pos += scnprintf(buf + pos, bufsz - pos, "C");
-	pos += scnprintf(buf + pos, bufsz - pos, " (%hhx)\n", mvm->scan_rx_ant);
+	pos += scnprintf(buf + pos, bufsz - pos, " (%x)\n", mvm->scan_rx_ant);
 
 	return simple_read_from_buffer(user_buf, count, ppos, buf, pos);
 }
