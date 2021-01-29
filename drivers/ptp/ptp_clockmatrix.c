@@ -1145,7 +1145,7 @@ static int check_and_set_masks(struct idtcm *idtcm,
 	case TOD_MASK_ADDR:
 		if ((val & 0xf0) || !(val & 0x0f)) {
 			dev_err(&idtcm->client->dev,
-				"Invalid TOD mask 0x%hhx\n", val);
+				"Invalid TOD mask 0x%x\n", val);
 			err = -EINVAL;
 		} else {
 			idtcm->tod_mask = val;

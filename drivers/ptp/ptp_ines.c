@@ -453,7 +453,7 @@ static bool ines_match(struct sk_buff *skb, unsigned int ptp_class,
 	seqid = be16_to_cpu(hdr->sequence_id);
 
 	if (tag_to_msgtype(ts->tag & 0x7) != msgtype) {
-		dev_dbg(dev, "msgtype mismatch ts %hhu != skb %hhu\n",
+		dev_dbg(dev, "msgtype mismatch ts %u != skb %u\n",
 			tag_to_msgtype(ts->tag & 0x7), msgtype);
 		return false;
 	}
@@ -463,12 +463,12 @@ static bool ines_match(struct sk_buff *skb, unsigned int ptp_class,
 		return false;
 	}
 	if (ts->portnum != portn) {
-		dev_dbg(dev, "portn mismatch ts %hu != skb %hu\n",
+		dev_dbg(dev, "portn mismatch ts %u != skb %u\n",
 			ts->portnum, portn);
 		return false;
 	}
 	if (ts->seqid != seqid) {
-		dev_dbg(dev, "seqid mismatch ts %hu != skb %hu\n",
+		dev_dbg(dev, "seqid mismatch ts %u != skb %u\n",
 			ts->seqid, seqid);
 		return false;
 	}

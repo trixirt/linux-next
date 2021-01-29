@@ -500,7 +500,7 @@ static int idt82p33_check_and_set_masks(struct idt82p33 *idt82p33,
 	if (page == PLLMASK_ADDR_HI && offset == PLLMASK_ADDR_LO) {
 		if ((val & 0xfc) || !(val & 0x3)) {
 			dev_err(&idt82p33->client->dev,
-				"Invalid PLL mask 0x%hhx\n", val);
+				"Invalid PLL mask 0x%x\n", val);
 			err = -EINVAL;
 		} else {
 			idt82p33->pll_mask = val;
