@@ -13,7 +13,7 @@
  * Don't use this unless you really need to: spin_lock() and spin_unlock()
  * are significantly faster.
  */
-static inline void bit_spin_lock(int bitnum, unsigned long *addr)
+static inline void __raw_bit_spin_lock(int bitnum, unsigned long *addr)
 {
 	/*
 	 * Assuming the lock is uncontended, this never enters
@@ -38,7 +38,7 @@ static inline void bit_spin_lock(int bitnum, unsigned long *addr)
 /*
  * Return true if it was acquired
  */
-static inline int bit_spin_trylock(int bitnum, unsigned long *addr)
+static inline int __raw_bit_spin_trylock(int bitnum, unsigned long *addr)
 {
 	preempt_disable();
 #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
@@ -54,7 +54,7 @@ static inline int bit_spin_trylock(int bitnum, unsigned long *addr)
 /*
  *  bit-based spin_unlock()
  */
-static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
+static inline void __raw_bit_spin_unlock(int bitnum, unsigned long *addr)
 {
 #ifdef CONFIG_DEBUG_SPINLOCK
 	BUG_ON(!test_bit(bitnum, addr));
@@ -71,7 +71,7 @@ static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
  *  non-atomic version, which can be used eg. if the bit lock itself is
  *  protecting the rest of the flags in the word.
  */
-static inline void __bit_spin_unlock(int bitnum, unsigned long *addr)
+static inline void ___raw_bit_spin_unlock(int bitnum, unsigned long *addr)
 {
 #ifdef CONFIG_DEBUG_SPINLOCK
 	BUG_ON(!test_bit(bitnum, addr));
@@ -86,7 +86,7 @@ static inline void __bit_spin_unlock(int bitnum, unsigned long *addr)
 /*
  * Return true if the lock is held.
  */
-static inline int bit_spin_is_locked(int bitnum, unsigned long *addr)
+static inline int __raw_bit_spin_is_locked(int bitnum, unsigned long *addr)
 {
 #if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
 	return test_bit(bitnum, addr);
@@ -96,6 +96,45 @@ static inline int bit_spin_is_locked(int bitnum, unsigned long *addr)
 	return 1;
 #endif
 }
+
+typedef struct {
+	unsigned long addr;
+} bit_spinlock_t;
+
+#if 1
+
+#define bit_spin_lock(bitnum, lock) __raw_bit_spin_lock((bitnum), &(lock)->addr)
+#define bit_spin_trylock(bitnum, lock) __raw_bit_spin_trylock((bitnum), &(lock)->addr)
+#define bit_spin_unlock(bitnum, lock) __raw_bit_spin_unlock((bitnum), &(lock)->addr)
+#define __bit_spin_unlock(bitnum, lock)	___raw_bit_spin_unlock((bitnum), &(lock)->addr)
+#define bit_spin_is_locked(bitnum, lock) __raw_bit_spin_is_locked((bitnum), &(lock)->addr)
+
+#else
+static inline int bit_spin_lock(int bitnum, bit_spinlock_t *lock)
+{
+	return __raw_bit_spin_lock(bitnum, &lock->addr);
+}
+
+static inline int bit_spin_trylock(int bitnum, bit_spinlock_t *lock)
+{
+	return __raw_bit_spin_trylock(bitnum, &lock->addr);
+}
+
+static inline void bit_spin_unlock(int bitnum, bit_spinlock_t *lock)
+{
+	__raw_bit_spin_unlock(bitnum, &lock->addr);
+}
+
+static inline void __bit_spin_unlock(int bitnum, bit_spinlock_t *lock)
+{
+	___raw_bit_spin_unlock(bitnum, &lock->addr);
+}
+
+static inline int bit_spin_is_locked(int bitnum, bit_spinlock_t *lock)
+{
+	return __raw_bit_spin_is_locked(bitnum, &lock->addr);
+}
+#endif
 
 #endif /* __LINUX_BIT_SPINLOCK_H */
 

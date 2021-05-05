@@ -30,7 +30,6 @@
 #define LIST_BL_BUG_ON(x)
 #endif
 
-
 struct hlist_bl_head {
 	struct hlist_bl_node *first;
 };
@@ -145,17 +144,17 @@ static inline void hlist_bl_del_init(struct hlist_bl_node *n)
 
 static inline void hlist_bl_lock(struct hlist_bl_head *b)
 {
-	bit_spin_lock(0, (unsigned long *)b);
+	bit_spin_lock(0, (bit_spinlock_t *)b);
 }
 
 static inline void hlist_bl_unlock(struct hlist_bl_head *b)
 {
-	__bit_spin_unlock(0, (unsigned long *)b);
+	__bit_spin_unlock(0, (bit_spinlock_t *)b);
 }
 
 static inline bool hlist_bl_is_locked(struct hlist_bl_head *b)
 {
-	return bit_spin_is_locked(0, (unsigned long *)b);
+	return bit_spin_is_locked(0, (bit_spinlock_t *)b);
 }
 
 /**

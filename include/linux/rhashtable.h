@@ -327,7 +327,7 @@ static inline void rht_lock(struct bucket_table *tbl,
 			    struct rhash_lock_head __rcu **bkt)
 {
 	local_bh_disable();
-	bit_spin_lock(0, (unsigned long *)bkt);
+	bit_spin_lock(0, (bit_spinlock_t *)bkt);
 	lock_map_acquire(&tbl->dep_map);
 }
 
@@ -336,7 +336,7 @@ static inline void rht_lock_nested(struct bucket_table *tbl,
 				   unsigned int subclass)
 {
 	local_bh_disable();
-	bit_spin_lock(0, (unsigned long *)bucket);
+	bit_spin_lock(0, (bit_spinlock_t *)bucket);
 	lock_acquire_exclusive(&tbl->dep_map, subclass, 0, NULL, _THIS_IP_);
 }
 
@@ -344,7 +344,7 @@ static inline void rht_unlock(struct bucket_table *tbl,
 			      struct rhash_lock_head __rcu **bkt)
 {
 	lock_map_release(&tbl->dep_map);
-	bit_spin_unlock(0, (unsigned long *)bkt);
+	bit_spin_unlock(0, (bit_spinlock_t *)bkt);
 	local_bh_enable();
 }
 
