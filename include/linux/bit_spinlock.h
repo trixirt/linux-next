@@ -103,6 +103,7 @@ typedef struct {
 
 #if 1
 
+#define bit_spin_lock_init(bitnum, lock)
 #define bit_spin_lock(bitnum, lock) __raw_bit_spin_lock((bitnum), &(lock)->addr)
 #define bit_spin_trylock(bitnum, lock) __raw_bit_spin_trylock((bitnum), &(lock)->addr)
 #define bit_spin_unlock(bitnum, lock) __raw_bit_spin_unlock((bitnum), &(lock)->addr)
@@ -110,6 +111,12 @@ typedef struct {
 #define bit_spin_is_locked(bitnum, lock) __raw_bit_spin_is_locked((bitnum), &(lock)->addr)
 
 #else
+
+static inline void bit_spin_lock_init(int bitnum, bit_spinlock_t *lock)
+{
+	/* noop */
+}
+
 static inline int bit_spin_lock(int bitnum, bit_spinlock_t *lock)
 {
 	return __raw_bit_spin_lock(bitnum, &lock->addr);
