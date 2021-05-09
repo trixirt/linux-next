@@ -62,17 +62,17 @@ static int zram_bvec_read(struct zram *zram, struct bio_vec *bvec,
 
 static int zram_slot_trylock(struct zram *zram, u32 index)
 {
-	return bit_spin_trylock(ZRAM_LOCK, (bit_spin_lock_t *)&zram->table[index].flags);
+	return bit_spin_trylock(ZRAM_LOCK, &zram->table[index].lock);
 }
 
 static void zram_slot_lock(struct zram *zram, u32 index)
 {
-	bit_spin_lock(ZRAM_LOCK, (bit_spin_lock_t *)&zram->table[index].flags);
+	bit_spin_lock(ZRAM_LOCK, &zram->table[index].lock);
 }
 
 static void zram_slot_unlock(struct zram *zram, u32 index)
 {
-	bit_spin_unlock(ZRAM_LOCK, (bit_spin_lock_t *)&zram->table[index].flags);
+	bit_spin_unlock(ZRAM_LOCK, &zram->table[index].lock);
 }
 
 static inline bool init_done(struct zram *zram)

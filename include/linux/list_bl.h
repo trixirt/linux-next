@@ -31,7 +31,10 @@
 #endif
 
 struct hlist_bl_head {
-	struct hlist_bl_node *first;
+	union {
+		struct hlist_bl_node *first;
+		bit_spinlock_t lock;
+	};
 };
 
 struct hlist_bl_node {
@@ -144,17 +147,17 @@ static inline void hlist_bl_del_init(struct hlist_bl_node *n)
 
 static inline void hlist_bl_lock(struct hlist_bl_head *b)
 {
-	bit_spin_lock(0, (bit_spinlock_t *)b);
+	bit_spin_lock(0, &b->lock);
 }
 
 static inline void hlist_bl_unlock(struct hlist_bl_head *b)
 {
-	__bit_spin_unlock(0, (bit_spinlock_t *)b);
+	__bit_spin_unlock(0, &b->lock);
 }
 
 static inline bool hlist_bl_is_locked(struct hlist_bl_head *b)
 {
-	return bit_spin_is_locked(0, (bit_spinlock_t *)b);
+	return bit_spin_is_locked(0, &b->lock);
 }
 
 /**

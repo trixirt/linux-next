@@ -7,6 +7,7 @@
 #include <linux/auxvec.h>
 #include <linux/list.h>
 #include <linux/spinlock.h>
+#include <linux/bit_spinlock.h>
 #include <linux/rbtree.h>
 #include <linux/rwsem.h>
 #include <linux/completion.h>
@@ -68,8 +69,11 @@ struct mem_cgroup;
 #endif
 
 struct page {
-	unsigned long flags;		/* Atomic flags, some possibly
-					 * updated asynchronously */
+	union {
+		unsigned long flags;		/* Atomic flags, some possibly
+						 * updated asynchronously */
+		bit_spinlock_t lock;
+	};
 	/*
 	 * Five words (20/40 bytes) are available in this union.
 	 * WARNING: bit 0 of the first word is used for PageTail(). That
