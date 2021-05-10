@@ -80,7 +80,7 @@
 static DEFINE_SPINLOCK(qd_lock);
 struct list_lru gfs2_qd_lru;
 
-static struct hlist_bl_head qd_hash_table[GFS2_QD_HASH_SIZE];
+static struct hlist_bl_head qd_hash_table[GFS2_QD_HASH_SIZE] = {0};
 
 static unsigned int gfs2_qd_hash(const struct gfs2_sbd *sdp,
 				 const struct kqid qid)
@@ -1769,10 +1769,3 @@ const struct quotactl_ops gfs2_quotactl_ops = {
 	.set_dqblk	= gfs2_set_dqblk,
 };
 
-void __init gfs2_quota_hash_init(void)
-{
-	unsigned i;
-
-	for(i = 0; i < GFS2_QD_HASH_SIZE; i++)
-		INIT_HLIST_BL_HEAD(&qd_hash_table[i]);
-}

@@ -668,9 +668,6 @@ static int dm_exception_table_init(struct dm_exception_table *et,
 	if (!et->table)
 		return -ENOMEM;
 
-	for (i = 0; i < size; i++)
-		INIT_HLIST_BL_HEAD(et->table + i);
-
 	return 0;
 }
 

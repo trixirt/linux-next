@@ -361,8 +361,6 @@ struct mb_cache *mb_cache_create(int bucket_bits)
 		kfree(cache);
 		goto err_out;
 	}
-	for (i = 0; i < bucket_count; i++)
-		INIT_HLIST_BL_HEAD(&cache->c_hash[i]);
 
 	cache->c_shrink.count_objects = mb_cache_count;
 	cache->c_shrink.scan_objects = mb_cache_scan;

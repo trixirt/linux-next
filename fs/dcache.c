@@ -106,7 +106,7 @@ static inline struct hlist_bl_head *d_hash(unsigned int hash)
 }
 
 #define IN_LOOKUP_SHIFT 10
-static struct hlist_bl_head in_lookup_hashtable[1 << IN_LOOKUP_SHIFT];
+static struct hlist_bl_head in_lookup_hashtable[1 << IN_LOOKUP_SHIFT] = {0};
 
 static inline struct hlist_bl_head *in_lookup_hash(const struct dentry *parent,
 					unsigned int hash)
@@ -3248,11 +3248,6 @@ EXPORT_SYMBOL(names_cachep);
 
 void __init vfs_caches_init_early(void)
 {
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(in_lookup_hashtable); i++)
-		INIT_HLIST_BL_HEAD(&in_lookup_hashtable[i]);
-
 	dcache_init_early();
 	inode_init_early();
 }
