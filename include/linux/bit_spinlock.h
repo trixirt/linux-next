@@ -99,9 +99,52 @@ static inline int __raw_bit_spin_is_locked(int bitnum, unsigned long *addr)
 
 typedef struct {
 	unsigned long addr;
+#if defined(CONFIG_PREEMPT_RT)
+	spinlock_t spin_lock;
+	unsigned long initialized : 1;
+#endif
 } bit_spinlock_t;
 
-#if 1
+#if defined(CONFIG_PREEMPT_RT)
+
+static inline void bit_spin_lock_init(int bitnum, bit_spinlock_t *lock)
+{
+	if (unlikely(!lock->initialize)) {
+		spin_lock_init(&lock->spin_lock);
+		lock->initialized = 1;
+	}
+}
+
+static inline int bit_spin_lock(int bitnum, bit_spinlock_t *lock)
+{
+	bit_spin_lock_init(bitnum, lock);
+	return spin_lock(&lock->spin_lock);
+}
+
+static inline int bit_spin_trylock(int bitnum, bit_spinlock_t *lock)
+{
+	bit_spin_lock_init(bitnum, lock);
+	return spin_trylock(&lock->spin_lock);
+}
+
+static inline void bit_spin_unlock(int bitnum, bit_spinlock_t *lock)
+{
+	bit_spin_lock_init(bitnum, lock);
+	spin_unock(&lock->spin_lock);
+}
+
+static inline void __bit_spin_unlock(int bitnum, bit_spinlock_t *lock)
+{
+	bit_spin_unlock(bitnum, lock);
+}
+
+static inline int bit_spin_is_locked(int bitnum, bit_spinlock_t *lock)
+{
+	bit_spin_lock_init(bitnum, lock);
+	return spin_is_locked(&lock->spin_lock);
+}
+
+#else
 
 #define bit_spin_lock_init(bitnum, lock)
 #define bit_spin_lock(bitnum, lock) __raw_bit_spin_lock((bitnum), &(lock)->addr)
@@ -110,38 +153,7 @@ typedef struct {
 #define __bit_spin_unlock(bitnum, lock)	___raw_bit_spin_unlock((bitnum), &(lock)->addr)
 #define bit_spin_is_locked(bitnum, lock) __raw_bit_spin_is_locked((bitnum), &(lock)->addr)
 
-#else
-
-static inline void bit_spin_lock_init(int bitnum, bit_spinlock_t *lock)
-{
-	/* noop */
-}
-
-static inline int bit_spin_lock(int bitnum, bit_spinlock_t *lock)
-{
-	return __raw_bit_spin_lock(bitnum, &lock->addr);
-}
-
-static inline int bit_spin_trylock(int bitnum, bit_spinlock_t *lock)
-{
-	return __raw_bit_spin_trylock(bitnum, &lock->addr);
-}
-
-static inline void bit_spin_unlock(int bitnum, bit_spinlock_t *lock)
-{
-	__raw_bit_spin_unlock(bitnum, &lock->addr);
-}
-
-static inline void __bit_spin_unlock(int bitnum, bit_spinlock_t *lock)
-{
-	___raw_bit_spin_unlock(bitnum, &lock->addr);
-}
-
-static inline int bit_spin_is_locked(int bitnum, bit_spinlock_t *lock)
-{
-	return __raw_bit_spin_is_locked(bitnum, &lock->addr);
-}
-#endif
+#endif /* CONFIG_PREEMPT_RT */
 
 #endif /* __LINUX_BIT_SPINLOCK_H */
 
