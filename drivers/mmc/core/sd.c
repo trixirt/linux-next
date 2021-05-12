@@ -857,11 +857,17 @@ try_again:
 		return err;
 
 	/*
-	 * In case CCS and S18A in the response is set, start Signal Voltage
+	 * In case S18A in the response is set, start Signal Voltage
 	 * Switch procedure. SPI mode doesn't support CMD11.
+	 * Strictly speaking, S18A is not valid if CCS is not set (= not SDSC),
+	 * so one would have to OCR for 0x41000000.
+	 * We choose to ignore this as SDSC cards that report UHS voltage
+	 * support should not be throttled artificially by the standard this
+	 * way.
+	 * SDSC cards that 'accidentally' reporting UHS support by setting the
+	 * reserved bits don't seem to be an issue in practice.
 	 */
-	if (!mmc_host_is_spi(host) && rocr &&
-	   ((*rocr & 0x41000000) == 0x41000000)) {
+	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
 		err = mmc_set_uhs_voltage(host, pocr);
 		if (err == -EAGAIN) {
 			retries--;
@@ -1493,7 +1499,14 @@ retry:
 		}
 	}
 
-	/* Initialization sequence for UHS-I cards */
+	/* Initialization sequence for UHS-I cards
+	 * Strictly speaking, S18A in the OCR is only valid if CCS is set, too.
+	 * So SDSC cards should be excluded. We choose to deviate from the
+	 * standard here to allow SDSC cards to utilize UHS if they report
+	 * supporting it.
+	 * Fortunately, SDSC cards reporting S18A and the related bus speed
+	 * modes on accident, by setting reserved bits, don't seem to exist.
+	 */
 	if (rocr & SD_ROCR_S18A && mmc_host_uhs(host)) {
 		err = mmc_sd_init_uhs_card(card);
 		if (err)
