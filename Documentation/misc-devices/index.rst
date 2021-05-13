@@ -21,6 +21,7 @@ fit into other categories.
    c2port
    ibmvmc
    ics932s401
+   intel/gna
    isl29003
    lis3lv02d
    max6875
