@@ -876,12 +876,7 @@ TRACE_EVENT(nfsd_cb_nodelegs,
 	TP_printk("client %08x:%08x", __entry->cl_boot, __entry->cl_id)
 )
 
-#define show_cb_state(val)						\
-	__print_symbolic(val,						\
-		{ NFSD4_CB_UP,		"UP" },				\
-		{ NFSD4_CB_UNKNOWN,	"UNKNOWN" },			\
-		{ NFSD4_CB_DOWN,	"DOWN" },			\
-		{ NFSD4_CB_FAULT,	"FAULT"})
+const char *cb_state2str(const int state);
 
 DECLARE_EVENT_CLASS(nfsd_cb_class,
 	TP_PROTO(const struct nfs4_client *clp),
@@ -901,7 +896,7 @@ DECLARE_EVENT_CLASS(nfsd_cb_class,
 	),
 	TP_printk("addr=%pISpc client %08x:%08x state=%s",
 		__entry->addr, __entry->cl_boot, __entry->cl_id,
-		show_cb_state(__entry->state))
+		cb_state2str(__entry->state))
 );
 
 #define DEFINE_NFSD_CB_EVENT(name)			\
