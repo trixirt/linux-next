@@ -408,6 +408,7 @@ int pipapo_refill(unsigned long *map, int len, int rules, unsigned long *dst,
  *
  * Return: true on match, false otherwise.
  */
+INDIRECT_CALLABLE_SCOPE
 bool nft_pipapo_lookup(const struct net *net, const struct nft_set *set,
 		       const u32 *key, const struct nft_set_ext **ext)
 {
