@@ -624,6 +624,7 @@ static const struct iio_buffer_setup_ops fxls8962af_buffer_ops = {
 	.postdisable = fxls8962af_buffer_postdisable,
 };
 
+#if IS_ENABLED(CONFIG_FXLS8962AF_I2C)
 static int fxls8962af_i2c_raw_read_errata3(struct fxls8962af_data *data,
 					   u16 *buffer, int samples,
 					   int sample_length)
@@ -639,6 +640,7 @@ static int fxls8962af_i2c_raw_read_errata3(struct fxls8962af_data *data,
 
 	return ret;
 }
+#endif
 
 static int fxls8962af_fifo_transfer(struct fxls8962af_data *data,
 				    u16 *buffer, int samples)
@@ -648,6 +650,7 @@ static int fxls8962af_fifo_transfer(struct fxls8962af_data *data,
 	int total_length = samples * sample_length;
 	int ret;
 
+#if IS_ENABLED(CONFIG_FXLS8962AF_I2C)
 	if (i2c_verify_client(dev))
 		/*
 		 * Due to errata bug:
@@ -657,6 +660,7 @@ static int fxls8962af_fifo_transfer(struct fxls8962af_data *data,
 		ret = fxls8962af_i2c_raw_read_errata3(data, buffer, samples,
 						      sample_length);
 	else
+#endif
 		ret = regmap_raw_read(data->regmap, FXLS8962AF_BUF_X_LSB, buffer,
 				      total_length);
 
