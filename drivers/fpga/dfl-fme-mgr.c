@@ -260,10 +260,10 @@ static u64 fme_mgr_status(struct fpga_manager *mgr)
 }
 
 static const struct fpga_manager_ops fme_mgr_ops = {
-	.write_init = fme_mgr_write_init,
-	.write = fme_mgr_write,
-	.write_complete = fme_mgr_write_complete,
-	.status = fme_mgr_status,
+	.status                  = fme_mgr_status,
+	.reconfig.write_init     = fme_mgr_write_init,
+	.reconfig.write          = fme_mgr_write,
+	.reconfig.write_complete = fme_mgr_write_complete,
 };
 
 static void fme_mgr_get_compat_id(void __iomem *fme_pr,

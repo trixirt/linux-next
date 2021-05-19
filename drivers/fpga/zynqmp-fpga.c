@@ -78,9 +78,9 @@ static enum fpga_mgr_states zynqmp_fpga_ops_state(struct fpga_manager *mgr)
 }
 
 static const struct fpga_manager_ops zynqmp_fpga_ops = {
-	.state = zynqmp_fpga_ops_state,
-	.write_init = zynqmp_fpga_ops_write_init,
-	.write = zynqmp_fpga_ops_write,
+	.state                   = zynqmp_fpga_ops_state,
+	.reconfig.write_init     = zynqmp_fpga_ops_write_init,
+	.reconfig.write          = zynqmp_fpga_ops_write,
 };
 
 static int zynqmp_fpga_probe(struct platform_device *pdev)

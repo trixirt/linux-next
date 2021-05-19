@@ -47,8 +47,8 @@ static inline u64 fpga_mgr_status(struct fpga_manager *mgr)
 
 static inline int fpga_mgr_write(struct fpga_manager *mgr, const char *buf, size_t count)
 {
-	if (mgr->mops->write)
-		return  mgr->mops->write(mgr, buf, count);
+	if (mgr->mops->reconfig.write)
+		return  mgr->mops->reconfig.write(mgr, buf, count);
 	return -EOPNOTSUPP;
 }
 
@@ -62,8 +62,8 @@ static inline int fpga_mgr_write_complete(struct fpga_manager *mgr,
 	int ret = 0;
 
 	mgr->state = FPGA_MGR_STATE_WRITE_COMPLETE;
-	if (mgr->mops->write_complete)
-		ret = mgr->mops->write_complete(mgr, info);
+	if (mgr->mops->reconfig.write_complete)
+		ret = mgr->mops->reconfig.write_complete(mgr, info);
 	if (ret) {
 		dev_err(&mgr->dev, "Error after writing image data to FPGA\n");
 		mgr->state = FPGA_MGR_STATE_WRITE_COMPLETE_ERR;
@@ -78,16 +78,16 @@ static inline int fpga_mgr_write_init(struct fpga_manager *mgr,
 				      struct fpga_image_info *info,
 				      const char *buf, size_t count)
 {
-	if (mgr->mops->write_init)
-		return  mgr->mops->write_init(mgr, info, buf, count);
+	if (mgr->mops->reconfig.write_init)
+		return  mgr->mops->reconfig.write_init(mgr, info, buf, count);
 	return 0;
 }
 
 static inline int fpga_mgr_write_sg(struct fpga_manager *mgr,
 				    struct sg_table *sgt)
 {
-	if (mgr->mops->write_sg)
-		return  mgr->mops->write_sg(mgr, sgt);
+	if (mgr->mops->reconfig.write_sg)
+		return  mgr->mops->reconfig.write_sg(mgr, sgt);
 	return -EOPNOTSUPP;
 }
 
@@ -232,7 +232,7 @@ static int fpga_mgr_buf_load_sg(struct fpga_manager *mgr,
 
 	/* Write the FPGA image to the FPGA. */
 	mgr->state = FPGA_MGR_STATE_WRITE;
-	if (mgr->mops->write_sg) {
+	if (mgr->mops->reconfig.write_sg) {
 		ret = fpga_mgr_write_sg(mgr, sgt);
 	} else {
 		struct sg_mapping_iter miter;
@@ -309,7 +309,7 @@ static int fpga_mgr_buf_load(struct fpga_manager *mgr,
 	 * contiguous kernel buffer and the driver doesn't require SG, non-SG
 	 * drivers will still work on the slow path.
 	 */
-	if (mgr->mops->write)
+	if (mgr->mops->reconfig.write)
 		return fpga_mgr_buf_load_mapped(mgr, info, buf, count);
 
 	/*

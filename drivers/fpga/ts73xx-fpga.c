@@ -93,9 +93,9 @@ static int ts73xx_fpga_write_complete(struct fpga_manager *mgr,
 }
 
 static const struct fpga_manager_ops ts73xx_fpga_ops = {
-	.write_init	= ts73xx_fpga_write_init,
-	.write		= ts73xx_fpga_write,
-	.write_complete	= ts73xx_fpga_write_complete,
+	.reconfig.write_init     = ts73xx_fpga_write_init,
+	.reconfig.write          = ts73xx_fpga_write,
+	.reconfig.write_complete = ts73xx_fpga_write_complete,
 };
 
 static int ts73xx_fpga_probe(struct platform_device *pdev)

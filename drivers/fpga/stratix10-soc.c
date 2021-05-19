@@ -389,9 +389,9 @@ static int s10_ops_write_complete(struct fpga_manager *mgr,
 }
 
 static const struct fpga_manager_ops s10_ops = {
-	.write_init = s10_ops_write_init,
-	.write = s10_ops_write,
-	.write_complete = s10_ops_write_complete,
+	.reconfig.write_init     = s10_ops_write_init,
+	.reconfig.write          = s10_ops_write,
+	.reconfig.write_complete = s10_ops_write_complete,
 };
 
 static int s10_probe(struct platform_device *pdev)
