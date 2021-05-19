@@ -80,6 +80,7 @@ config BPF_LSM
 	depends on BPF_SYSCALL
 	depends on SECURITY
 	depends on BPF_JIT
+	depends on NET
 	help
 	  Enables instrumentation of the security hooks with BPF programs for
 	  implementing dynamic MAC and Audit Policies.
