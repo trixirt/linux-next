@@ -314,10 +314,6 @@ void fpga_region_unregister(struct fpga_region *region)
 }
 EXPORT_SYMBOL_GPL(fpga_region_unregister);
 
-static void fpga_region_dev_release(struct device *dev)
-{
-}
-
 /**
  * fpga_region_init - init function for fpga_region class
  * Creates the fpga_region class and registers a reconfig notifier.
@@ -329,7 +325,6 @@ static int __init fpga_region_init(void)
 		return PTR_ERR(fpga_region_class);
 
 	fpga_region_class->dev_groups = fpga_region_groups;
-	fpga_region_class->dev_release = fpga_region_dev_release;
 
 	return 0;
 }

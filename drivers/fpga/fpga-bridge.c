@@ -473,10 +473,6 @@ void fpga_bridge_unregister(struct fpga_bridge *bridge)
 }
 EXPORT_SYMBOL_GPL(fpga_bridge_unregister);
 
-static void fpga_bridge_dev_release(struct device *dev)
-{
-}
-
 static int __init fpga_bridge_dev_init(void)
 {
 	fpga_bridge_class = class_create(THIS_MODULE, "fpga_bridge");
@@ -484,7 +480,6 @@ static int __init fpga_bridge_dev_init(void)
 		return PTR_ERR(fpga_bridge_class);
 
 	fpga_bridge_class->dev_groups = fpga_bridge_groups;
-	fpga_bridge_class->dev_release = fpga_bridge_dev_release;
 
 	return 0;
 }

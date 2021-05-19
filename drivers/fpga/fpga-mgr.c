@@ -779,10 +779,6 @@ int devm_fpga_mgr_register(struct device *dev, struct fpga_manager *mgr)
 }
 EXPORT_SYMBOL_GPL(devm_fpga_mgr_register);
 
-static void fpga_mgr_dev_release(struct device *dev)
-{
-}
-
 static int __init fpga_mgr_class_init(void)
 {
 	pr_info("FPGA manager framework\n");
@@ -792,7 +788,6 @@ static int __init fpga_mgr_class_init(void)
 		return PTR_ERR(fpga_mgr_class);
 
 	fpga_mgr_class->dev_groups = fpga_mgr_groups;
-	fpga_mgr_class->dev_release = fpga_mgr_dev_release;
 
 	return 0;
 }
