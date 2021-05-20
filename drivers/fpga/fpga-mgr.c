@@ -45,10 +45,12 @@ static inline u64 fpga_mgr_status(struct fpga_manager *mgr)
 	return 0;
 }
 
-static inline int fpga_mgr_write(struct fpga_manager *mgr, const char *buf, size_t count)
+static inline int fpga_mgr_write(struct fpga_manager *mgr,
+				 const char *buf, size_t count,
+				 const struct fpga_manager_update_ops *uops)
 {
 	if (mgr->mops->reconfig.write)
-		return  mgr->mops->reconfig.write(mgr, buf, count);
+		return  uops->write(mgr, buf, count);
 	return -EOPNOTSUPP;
 }
 
@@ -57,13 +59,14 @@ static inline int fpga_mgr_write(struct fpga_manager *mgr, const char *buf, size
  * finish and set the FPGA into operating mode.
  */
 static inline int fpga_mgr_write_complete(struct fpga_manager *mgr,
-					  struct fpga_image_info *info)
+					  struct fpga_image_info *info,
+					  const struct fpga_manager_update_ops *uops)
 {
 	int ret = 0;
 
 	mgr->state = FPGA_MGR_STATE_WRITE_COMPLETE;
-	if (mgr->mops->reconfig.write_complete)
-		ret = mgr->mops->reconfig.write_complete(mgr, info);
+	if (uops->write_complete)
+		ret = uops->write_complete(mgr, info);
 	if (ret) {
 		dev_err(&mgr->dev, "Error after writing image data to FPGA\n");
 		mgr->state = FPGA_MGR_STATE_WRITE_COMPLETE_ERR;
@@ -76,18 +79,20 @@ static inline int fpga_mgr_write_complete(struct fpga_manager *mgr,
 
 static inline int fpga_mgr_write_init(struct fpga_manager *mgr,
 				      struct fpga_image_info *info,
-				      const char *buf, size_t count)
+				      const char *buf, size_t count,
+				      const struct fpga_manager_update_ops *uops)
 {
-	if (mgr->mops->reconfig.write_init)
-		return  mgr->mops->reconfig.write_init(mgr, info, buf, count);
+	if (uops->write_init)
+		return  uops->write_init(mgr, info, buf, count);
 	return 0;
 }
 
 static inline int fpga_mgr_write_sg(struct fpga_manager *mgr,
-				    struct sg_table *sgt)
+				    struct sg_table *sgt,
+				    const struct fpga_manager_update_ops *uops)
 {
-	if (mgr->mops->reconfig.write_sg)
-		return  mgr->mops->reconfig.write_sg(mgr, sgt);
+	if (uops->write_sg)
+		return  uops->write_sg(mgr, sgt);
 	return -EOPNOTSUPP;
 }
 
@@ -143,16 +148,17 @@ EXPORT_SYMBOL_GPL(fpga_image_info_free);
  */
 static int fpga_mgr_write_init_buf(struct fpga_manager *mgr,
 				   struct fpga_image_info *info,
-				   const char *buf, size_t count)
+				   const char *buf, size_t count,
+				   const struct fpga_manager_update_ops *uops)
 {
 	int ret;
 
 	mgr->state = FPGA_MGR_STATE_WRITE_INIT;
 	if (!mgr->mops->initial_header_size)
-		ret = fpga_mgr_write_init(mgr, info, NULL, 0);
+		ret = fpga_mgr_write_init(mgr, info, NULL, 0, uops);
 	else
 		ret = fpga_mgr_write_init(
-		    mgr, info, buf, min(mgr->mops->initial_header_size, count));
+		    mgr, info, buf, min(mgr->mops->initial_header_size, count), uops);
 
 	if (ret) {
 		dev_err(&mgr->dev, "Error preparing FPGA for writing\n");
@@ -165,7 +171,8 @@ static int fpga_mgr_write_init_buf(struct fpga_manager *mgr,
 
 static int fpga_mgr_write_init_sg(struct fpga_manager *mgr,
 				  struct fpga_image_info *info,
-				  struct sg_table *sgt)
+				  struct sg_table *sgt,
+				  const struct fpga_manager_update_ops *uops)
 {
 	struct sg_mapping_iter miter;
 	size_t len;
@@ -173,7 +180,7 @@ static int fpga_mgr_write_init_sg(struct fpga_manager *mgr,
 	int ret;
 
 	if (!mgr->mops->initial_header_size)
-		return fpga_mgr_write_init_buf(mgr, info, NULL, 0);
+		return fpga_mgr_write_init_buf(mgr, info, NULL, 0, uops);
 
 	/*
 	 * First try to use miter to map the first fragment to access the
@@ -183,7 +190,7 @@ static int fpga_mgr_write_init_sg(struct fpga_manager *mgr,
 	if (sg_miter_next(&miter) &&
 	    miter.length >= mgr->mops->initial_header_size) {
 		ret = fpga_mgr_write_init_buf(mgr, info, miter.addr,
-					      miter.length);
+					      miter.length, uops);
 		sg_miter_stop(&miter);
 		return ret;
 	}
@@ -196,7 +203,7 @@ static int fpga_mgr_write_init_sg(struct fpga_manager *mgr,
 
 	len = sg_copy_to_buffer(sgt->sgl, sgt->nents, buf,
 				mgr->mops->initial_header_size);
-	ret = fpga_mgr_write_init_buf(mgr, info, buf, len);
+	ret = fpga_mgr_write_init_buf(mgr, info, buf, len, uops);
 
 	kfree(buf);
 
@@ -208,6 +215,7 @@ static int fpga_mgr_write_init_sg(struct fpga_manager *mgr,
  * @mgr:	fpga manager
  * @info:	fpga image specific information
  * @sgt:	scatterlist table
+ * @uops:       which update ops to use
  *
  * Step the low level fpga manager through the device-specific steps of getting
  * an FPGA ready to be configured, writing the image to it, then doing whatever
@@ -222,24 +230,25 @@ static int fpga_mgr_write_init_sg(struct fpga_manager *mgr,
  */
 static int fpga_mgr_buf_load_sg(struct fpga_manager *mgr,
 				struct fpga_image_info *info,
-				struct sg_table *sgt)
+				struct sg_table *sgt,
+				const struct fpga_manager_update_ops *uops)
 {
 	int ret;
 
-	ret = fpga_mgr_write_init_sg(mgr, info, sgt);
+	ret = fpga_mgr_write_init_sg(mgr, info, sgt, uops);
 	if (ret)
 		return ret;
 
 	/* Write the FPGA image to the FPGA. */
 	mgr->state = FPGA_MGR_STATE_WRITE;
-	if (mgr->mops->reconfig.write_sg) {
-		ret = fpga_mgr_write_sg(mgr, sgt);
+	if (uops->write_sg) {
+		ret = fpga_mgr_write_sg(mgr, sgt, uops);
 	} else {
 		struct sg_mapping_iter miter;
 
 		sg_miter_start(&miter, sgt->sgl, sgt->nents, SG_MITER_FROM_SG);
 		while (sg_miter_next(&miter)) {
-			ret = fpga_mgr_write(mgr, miter.addr, miter.length);
+			ret = fpga_mgr_write(mgr, miter.addr, miter.length, uops);
 			if (ret)
 				break;
 		}
@@ -252,16 +261,17 @@ static int fpga_mgr_buf_load_sg(struct fpga_manager *mgr,
 		return ret;
 	}
 
-	return fpga_mgr_write_complete(mgr, info);
+	return fpga_mgr_write_complete(mgr, info, uops);
 }
 
 static int fpga_mgr_buf_load_mapped(struct fpga_manager *mgr,
 				    struct fpga_image_info *info,
-				    const char *buf, size_t count)
+				    const char *buf, size_t count,
+				    const struct fpga_manager_update_ops *uops)
 {
 	int ret;
 
-	ret = fpga_mgr_write_init_buf(mgr, info, buf, count);
+	ret = fpga_mgr_write_init_buf(mgr, info, buf, count, uops);
 	if (ret)
 		return ret;
 
@@ -269,14 +279,14 @@ static int fpga_mgr_buf_load_mapped(struct fpga_manager *mgr,
 	 * Write the FPGA image to the FPGA.
 	 */
 	mgr->state = FPGA_MGR_STATE_WRITE;
-	ret = fpga_mgr_write(mgr, buf, count);
+	ret = fpga_mgr_write(mgr, buf, count, uops);
 	if (ret) {
 		dev_err(&mgr->dev, "Error while writing image data to FPGA\n");
 		mgr->state = FPGA_MGR_STATE_WRITE_ERR;
 		return ret;
 	}
 
-	return fpga_mgr_write_complete(mgr, info);
+	return fpga_mgr_write_complete(mgr, info, uops);
 }
 
 /**
@@ -285,6 +295,7 @@ static int fpga_mgr_buf_load_mapped(struct fpga_manager *mgr,
  * @info:	fpga image info
  * @buf:	buffer contain fpga image
  * @count:	byte count of buf
+ * @uops:       which update ops to use
  *
  * Step the low level fpga manager through the device-specific steps of getting
  * an FPGA ready to be configured, writing the image to it, then doing whatever
@@ -295,7 +306,8 @@ static int fpga_mgr_buf_load_mapped(struct fpga_manager *mgr,
  */
 static int fpga_mgr_buf_load(struct fpga_manager *mgr,
 			     struct fpga_image_info *info,
-			     const char *buf, size_t count)
+			     const char *buf, size_t count,
+			     const struct fpga_manager_update_ops *uops)
 {
 	struct page **pages;
 	struct sg_table sgt;
@@ -309,8 +321,8 @@ static int fpga_mgr_buf_load(struct fpga_manager *mgr,
 	 * contiguous kernel buffer and the driver doesn't require SG, non-SG
 	 * drivers will still work on the slow path.
 	 */
-	if (mgr->mops->reconfig.write)
-		return fpga_mgr_buf_load_mapped(mgr, info, buf, count);
+	if (uops && uops->write)
+		return fpga_mgr_buf_load_mapped(mgr, info, buf, count, uops);
 
 	/*
 	 * Convert the linear kernel pointer into a sg_table of pages for use
@@ -345,7 +357,7 @@ static int fpga_mgr_buf_load(struct fpga_manager *mgr,
 	if (rc)
 		return rc;
 
-	rc = fpga_mgr_buf_load_sg(mgr, info, &sgt);
+	rc = fpga_mgr_buf_load_sg(mgr, info, &sgt, uops);
 	sg_free_table(&sgt);
 
 	return rc;
@@ -356,6 +368,7 @@ static int fpga_mgr_buf_load(struct fpga_manager *mgr,
  * @mgr:	fpga manager
  * @info:	fpga image specific information
  * @image_name:	name of image file on the firmware search path
+ * @uops:       which update ops to use
  *
  * Request an FPGA image using the firmware class, then write out to the FPGA.
  * Update the state before each step to provide info on what step failed if
@@ -367,7 +380,8 @@ static int fpga_mgr_buf_load(struct fpga_manager *mgr,
  */
 static int fpga_mgr_firmware_load(struct fpga_manager *mgr,
 				  struct fpga_image_info *info,
-				  const char *image_name)
+				  const char *image_name,
+				  const struct fpga_manager_update_ops *uops)
 {
 	struct device *dev = &mgr->dev;
 	const struct firmware *fw;
@@ -384,7 +398,7 @@ static int fpga_mgr_firmware_load(struct fpga_manager *mgr,
 		return ret;
 	}
 
-	ret = fpga_mgr_buf_load(mgr, info, fw->data, fw->size);
+	ret = fpga_mgr_buf_load(mgr, info, fw->data, fw->size, uops);
 
 	release_firmware(fw);
 
@@ -403,12 +417,14 @@ static int fpga_mgr_firmware_load(struct fpga_manager *mgr,
  */
 int fpga_mgr_load(struct fpga_manager *mgr, struct fpga_image_info *info)
 {
+	const struct fpga_manager_update_ops *uops = &mgr->mops->reconfig;
+
 	if (info->sgt)
-		return fpga_mgr_buf_load_sg(mgr, info, info->sgt);
+		return fpga_mgr_buf_load_sg(mgr, info, info->sgt, uops);
 	if (info->buf && info->count)
-		return fpga_mgr_buf_load(mgr, info, info->buf, info->count);
+		return fpga_mgr_buf_load(mgr, info, info->buf, info->count, uops);
 	if (info->firmware_name)
-		return fpga_mgr_firmware_load(mgr, info, info->firmware_name);
+		return fpga_mgr_firmware_load(mgr, info, info->firmware_name, uops);
 	return -EINVAL;
 }
 EXPORT_SYMBOL_GPL(fpga_mgr_load);
