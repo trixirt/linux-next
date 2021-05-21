@@ -4674,6 +4674,9 @@ static int sanity_check_curseg(struct f2fs_sb_info *sbi)
 {
 	int i;
 
+	if (__F2FS_HAS_FEATURE(sbi->raw_super, F2FS_FEATURE_RO))
+		return 0;
+
 	/*
 	 * In LFS/SSR curseg, .next_blkoff should point to an unused blkaddr;
 	 * In LFS curseg, all blkaddr after .next_blkoff should be unused.
