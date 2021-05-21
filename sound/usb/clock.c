@@ -258,9 +258,10 @@ static int __uac_clock_find_source(struct snd_usb_audio *chip,
 	union uac23_clock_source_desc *source;
 	union uac23_clock_selector_desc *selector;
 	union uac23_clock_multiplier_desc *multiplier;
-	int ret, i, cur, err, pins, clock_id;
+	int ret, i, err, pins, clock_id;
 	const u8 *sources;
 	int proto = fmt->protocol;
+	int cur = 0;
 
 	entity_id &= 0xff;
 
