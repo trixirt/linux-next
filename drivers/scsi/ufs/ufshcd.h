@@ -108,10 +108,6 @@ enum ufs_pm_op {
 	UFS_SHUTDOWN_PM,
 };
 
-#define ufshcd_is_runtime_pm(op) ((op) == UFS_RUNTIME_PM)
-#define ufshcd_is_system_pm(op) ((op) == UFS_SYSTEM_PM)
-#define ufshcd_is_shutdown_pm(op) ((op) == UFS_SHUTDOWN_PM)
-
 /* Host <-> Device UniPro Link state */
 enum uic_link_state {
 	UIC_LINK_OFF_STATE	= 0, /* Link powered down or disabled */
@@ -159,13 +155,13 @@ enum uic_link_state {
  * power off.
  */
 enum ufs_pm_level {
-	UFS_PM_LVL_0, /* UFS_ACTIVE_PWR_MODE, UIC_LINK_ACTIVE_STATE */
-	UFS_PM_LVL_1, /* UFS_ACTIVE_PWR_MODE, UIC_LINK_HIBERN8_STATE */
-	UFS_PM_LVL_2, /* UFS_SLEEP_PWR_MODE, UIC_LINK_ACTIVE_STATE */
-	UFS_PM_LVL_3, /* UFS_SLEEP_PWR_MODE, UIC_LINK_HIBERN8_STATE */
-	UFS_PM_LVL_4, /* UFS_POWERDOWN_PWR_MODE, UIC_LINK_HIBERN8_STATE */
-	UFS_PM_LVL_5, /* UFS_POWERDOWN_PWR_MODE, UIC_LINK_OFF_STATE */
-	UFS_PM_LVL_6, /* UFS_DEEPSLEEP_PWR_MODE, UIC_LINK_OFF_STATE */
+	UFS_PM_LVL_0,
+	UFS_PM_LVL_1,
+	UFS_PM_LVL_2,
+	UFS_PM_LVL_3,
+	UFS_PM_LVL_4,
+	UFS_PM_LVL_5,
+	UFS_PM_LVL_6,
 	UFS_PM_LVL_MAX
 };
 
@@ -647,6 +643,25 @@ struct ufs_hba_variant_params {
 	u32 wb_flush_threshold;
 };
 
+struct ufs_hba_monitor {
+	unsigned long chunk_size;
+
+	unsigned long nr_sec_rw[2];
+	ktime_t total_busy[2];
+
+	unsigned long nr_req[2];
+	/* latencies*/
+	ktime_t lat_sum[2];
+	ktime_t lat_max[2];
+	ktime_t lat_min[2];
+
+	u32 nr_queued[2];
+	ktime_t busy_start_ts[2];
+
+	ktime_t enabled_ts;
+	bool enabled;
+};
+
 /**
  * struct ufs_hba - per adapter private structure
  * @mmio_base: UFSHCI base register address
@@ -838,6 +853,8 @@ struct ufs_hba {
 	struct request_queue	*bsg_queue;
 	struct delayed_work rpm_dev_flush_recheck_work;
 
+	struct ufs_hba_monitor	monitor;
+
 #ifdef CONFIG_SCSI_UFS_CRYPTO
 	union ufs_crypto_capabilities crypto_capabilities;
 	union ufs_crypto_cap_entry *crypto_cap_array;
@@ -942,7 +959,7 @@ static inline void ufshcd_rmwl(struct ufs_hba *hba, u32 mask, u32 val, u32 reg)
 int ufshcd_alloc_host(struct device *, struct ufs_hba **);
 void ufshcd_dealloc_host(struct ufs_hba *);
 int ufshcd_hba_enable(struct ufs_hba *hba);
-int ufshcd_init(struct ufs_hba * , void __iomem * , unsigned int);
+int ufshcd_init(struct ufs_hba *, void __iomem *, unsigned int);
 int ufshcd_link_recovery(struct ufs_hba *hba);
 int ufshcd_make_hba_operational(struct ufs_hba *hba);
 void ufshcd_remove(struct ufs_hba *);
