@@ -895,8 +895,8 @@ int ubifs_gc_start_commit(struct ubifs_info *c)
 	/* Record index freeable LEBs for unmapping after commit */
 	while (1) {
 		lp = ubifs_fast_find_frdi_idx(c);
-		if (IS_ERR(lp)) {
-			err = PTR_ERR(lp);
+		if (!lp) {
+			err = -ENOMEM;
 			goto out;
 		}
 		if (!lp)
