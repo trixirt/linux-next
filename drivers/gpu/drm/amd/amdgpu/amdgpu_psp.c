@@ -118,6 +118,10 @@ static int psp_early_init(void *handle)
 	case CHIP_ALDEBARAN:
 		psp_v13_0_set_psp_funcs(psp);
 		break;
+	case CHIP_YELLOW_CARP:
+		psp_v13_0_set_psp_funcs(psp);
+		psp->autoload_supported = true;
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -282,7 +286,7 @@ psp_cmd_submit_buf(struct psp_context *psp,
 		goto exit;
 	}
 
-	amdgpu_asic_invalidate_hdp(psp->adev, NULL);
+	amdgpu_device_invalidate_hdp(psp->adev, NULL);
 	while (*((unsigned int *)psp->fence_buf) != index) {
 		if (--timeout == 0)
 			break;
@@ -295,7 +299,7 @@ psp_cmd_submit_buf(struct psp_context *psp,
 		if (ras_intr)
 			break;
 		usleep_range(10, 100);
-		amdgpu_asic_invalidate_hdp(psp->adev, NULL);
+		amdgpu_device_invalidate_hdp(psp->adev, NULL);
 	}
 
 	/* We allow TEE_ERROR_NOT_SUPPORTED for VMR command and PSP_ERR_UNKNOWN_COMMAND in SRIOV */
@@ -2696,7 +2700,7 @@ int psp_ring_cmd_submit(struct psp_context *psp,
 	write_frame->fence_addr_hi = upper_32_bits(fence_mc_addr);
 	write_frame->fence_addr_lo = lower_32_bits(fence_mc_addr);
 	write_frame->fence_value = index;
-	amdgpu_asic_flush_hdp(adev, NULL);
+	amdgpu_device_flush_hdp(adev, NULL);
 
 	/* Update the write Pointer in DWORDs */
 	psp_write_ptr_reg = (psp_write_ptr_reg + rb_frame_size_dw) % ring_size_dw;

@@ -32,7 +32,6 @@
 #include "core_status.h"
 #include "resource.h"
 #include "dm_helpers.h"
-#include "dce110_hw_sequencer.h"
 #include "dce110_timing_generator.h"
 #include "dce/dce_hwseq.h"
 #include "gpio_service_interface.h"
@@ -49,6 +48,9 @@
 #include "link_encoder.h"
 #include "link_hwss.h"
 #include "dc_link_dp.h"
+#if defined(CONFIG_DRM_AMD_DC_DCN3_1)
+#include "dccg.h"
+#endif
 #include "clock_source.h"
 #include "clk_mgr.h"
 #include "abm.h"
@@ -2124,11 +2126,31 @@ static void dce110_setup_audio_dto(
 
 			build_audio_output(context, pipe_ctx, &audio_output);
 
+#if defined(CONFIG_DRM_AMD_DC_DCN3_1)
+			/* For DCN3.1, audio to HPO FRL encoder is using audio DTBCLK DTO */
+			if (dc->res_pool->dccg && dc->res_pool->dccg->funcs->set_audio_dtbclk_dto) {
+				/* disable audio DTBCLK DTO */
+				dc->res_pool->dccg->funcs->set_audio_dtbclk_dto(
+					dc->res_pool->dccg, 0);
+
+				pipe_ctx->stream_res.audio->funcs->wall_dto_setup(
+						pipe_ctx->stream_res.audio,
+						pipe_ctx->stream->signal,
+						&audio_output.crtc_info,
+						&audio_output.pll_info);
+			} else
+				pipe_ctx->stream_res.audio->funcs->wall_dto_setup(
+					pipe_ctx->stream_res.audio,
+					pipe_ctx->stream->signal,
+					&audio_output.crtc_info,
+					&audio_output.pll_info);
+#else
 			pipe_ctx->stream_res.audio->funcs->wall_dto_setup(
 				pipe_ctx->stream_res.audio,
 				pipe_ctx->stream->signal,
 				&audio_output.crtc_info,
 				&audio_output.pll_info);
+#endif
 			break;
 		}
 	}

@@ -2706,6 +2706,10 @@ bool dc_link_set_psr_allow_active(struct dc_link *link, bool allow_active,
 		return false;
 
 	link->psr_settings.psr_allow_active = allow_active;
+#if defined(CONFIG_DRM_AMD_DC_DCN3_1)
+	if (!allow_active)
+		dc_z10_restore(dc);
+#endif
 
 	if (psr != NULL && link->psr_settings.psr_feature_enabled) {
 		if (force_static && psr->funcs->psr_force_static)
@@ -2875,8 +2879,16 @@ bool dc_link_setup_psr(struct dc_link *link,
 	psr_context->psr_level.u32all = 0;
 
 	/*skip power down the single pipe since it blocks the cstate*/
+#if defined(CONFIG_DRM_AMD_DC_DCN3_1)
+	if (link->ctx->asic_id.chip_family >= FAMILY_RV) {
+		psr_context->psr_level.bits.SKIP_CRTC_DISABLE = true;
+		if (link->ctx->asic_id.chip_family == FAMILY_YELLOW_CARP && !dc->debug.disable_z10)
+			psr_context->psr_level.bits.SKIP_CRTC_DISABLE = false;
+	}
+#else
 	if (link->ctx->asic_id.chip_family >= FAMILY_RV)
 		psr_context->psr_level.bits.SKIP_CRTC_DISABLE = true;
+#endif
 
 	/* SMU will perform additional powerdown sequence.
 	 * For unsupported ASICs, set psr_level flag to skip PSR
@@ -3208,8 +3220,14 @@ static void update_psp_stream_config(struct pipe_ctx *pipe_ctx, bool dpms_off)
 				dp_get_panel_mode(pipe_ctx->stream->link);
 
 		config.otg_inst = (uint8_t) pipe_ctx->stream_res.tg->inst;
+		/*stream_enc_inst*/
 		config.dig_fe = (uint8_t) pipe_ctx->stream_res.stream_enc->stream_enc_inst;
 		config.dig_be = pipe_ctx->stream->link->link_enc_hw_inst;
+#if defined(CONFIG_DRM_AMD_DC_DCN3_1)
+		config.stream_enc_idx = pipe_ctx->stream_res.stream_enc->id - ENGINE_ID_DIGA;
+		config.link_enc_idx = pipe_ctx->stream->link->link_enc->transmitter - TRANSMITTER_UNIPHY_A;
+		config.phy_idx = pipe_ctx->stream->link->link_enc->transmitter - TRANSMITTER_UNIPHY_A;
+#endif
 		config.dpms_off = dpms_off;
 		config.dm_stream_ctx = pipe_ctx->stream->dm_stream_context;
 		config.assr_enabled = (panel_mode == DP_PANEL_MODE_EDP);

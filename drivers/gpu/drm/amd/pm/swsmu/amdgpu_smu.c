@@ -35,6 +35,7 @@
 #include "renoir_ppt.h"
 #include "vangogh_ppt.h"
 #include "aldebaran_ppt.h"
+#include "yellow_carp_ppt.h"
 #include "amd_pcie.h"
 
 /*
@@ -584,6 +585,9 @@ static int smu_set_funcs(struct amdgpu_device *adev)
 	case CHIP_VANGOGH:
 		vangogh_set_ppt_funcs(smu);
 		break;
+	case CHIP_YELLOW_CARP:
+		yellow_carp_set_ppt_funcs(smu);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -666,6 +670,9 @@ static int smu_late_init(void *handle)
 		dev_err(adev->dev, "Failed to post smu init!\n");
 		return ret;
 	}
+
+	if (adev->asic_type == CHIP_YELLOW_CARP)
+		return 0;
 
 	if (!amdgpu_sriov_vf(adev) || smu->od_enabled) {
 		ret = smu_set_default_od_settings(smu);
