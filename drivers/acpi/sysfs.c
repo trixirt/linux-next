@@ -5,10 +5,11 @@
 
 #define pr_fmt(fmt) "ACPI: " fmt
 
+#include <linux/acpi.h>
+#include <linux/bitmap.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/moduleparam.h>
-#include <linux/acpi.h>
 
 #include "internal.h"
 
@@ -254,16 +255,12 @@ static int param_get_trace_state(char *buffer, const struct kernel_param *kp)
 {
 	if (!(acpi_gbl_trace_flags & ACPI_TRACE_ENABLED))
 		return sprintf(buffer, "disable\n");
-	else {
-		if (acpi_gbl_trace_method_name) {
-			if (acpi_gbl_trace_flags & ACPI_TRACE_ONESHOT)
-				return sprintf(buffer, "method-once\n");
-			else
-				return sprintf(buffer, "method\n");
-		} else
-			return sprintf(buffer, "enable\n");
-	}
-	return 0;
+	if (!acpi_gbl_trace_method_name)
+		return sprintf(buffer, "enable\n");
+	if (acpi_gbl_trace_flags & ACPI_TRACE_ONESHOT)
+		return sprintf(buffer, "method-once\n");
+	else
+		return sprintf(buffer, "method\n");
 }
 
 module_param_call(trace_state, param_set_trace_state, param_get_trace_state,
@@ -387,8 +384,7 @@ acpi_status acpi_sysfs_table_handler(u32 event, void *table, void *context)
 
 	switch (event) {
 	case ACPI_TABLE_EVENT_INSTALL:
-		table_attr =
-		    kzalloc(sizeof(struct acpi_table_attr), GFP_KERNEL);
+		table_attr = kzalloc(sizeof(*table_attr), GFP_KERNEL);
 		if (!table_attr)
 			return AE_NO_MEMORY;
 
@@ -419,7 +415,7 @@ static ssize_t acpi_data_show(struct file *filp, struct kobject *kobj,
 			      loff_t offset, size_t count)
 {
 	struct acpi_data_attr *data_attr;
-	void __iomem *base;
+	void *base;
 	ssize_t rc;
 
 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
@@ -788,6 +784,7 @@ end:
  * the GPE flooding for GPE 00, they need to specify the following boot
  * parameter:
  *   acpi_mask_gpe=0x00
+ * Note, the parameter can be a list (see bitmap_parselist() for the details).
  * The masking status can be modified by the following runtime controlling
  * interface:
  *   echo unmask > /sys/firmware/acpi/interrupts/gpe00
@@ -797,11 +794,16 @@ static DECLARE_BITMAP(acpi_masked_gpes_map, ACPI_MASKABLE_GPE_MAX) __initdata;
 
 static int __init acpi_gpe_set_masked_gpes(char *val)
 {
+	int ret;
 	u8 gpe;
 
-	if (kstrtou8(val, 0, &gpe))
-		return -EINVAL;
-	set_bit(gpe, acpi_masked_gpes_map);
+	ret = kstrtou8(val, 0, &gpe);
+	if (ret) {
+		ret = bitmap_parselist(val, acpi_masked_gpes_map, ACPI_MASKABLE_GPE_MAX);
+		if (ret)
+			return ret;
+	} else
+		set_bit(gpe, acpi_masked_gpes_map);
 
 	return 1;
 }
@@ -833,13 +835,11 @@ void acpi_irq_stats_init(void)
 	num_gpes = acpi_current_gpe_count;
 	num_counters = num_gpes + ACPI_NUM_FIXED_EVENTS + NUM_COUNTERS_EXTRA;
 
-	all_attrs = kcalloc(num_counters + 1, sizeof(struct attribute *),
-			    GFP_KERNEL);
+	all_attrs = kcalloc(num_counters + 1, sizeof(*all_attrs), GFP_KERNEL);
 	if (all_attrs == NULL)
 		return;
 
-	all_counters = kcalloc(num_counters, sizeof(struct event_counter),
-			       GFP_KERNEL);
+	all_counters = kcalloc(num_counters, sizeof(*all_counters), GFP_KERNEL);
 	if (all_counters == NULL)
 		goto fail;
 
@@ -847,8 +847,7 @@ void acpi_irq_stats_init(void)
 	if (ACPI_FAILURE(status))
 		goto fail;
 
-	counter_attrs = kcalloc(num_counters, sizeof(struct kobj_attribute),
-				GFP_KERNEL);
+	counter_attrs = kcalloc(num_counters, sizeof(*counter_attrs), GFP_KERNEL);
 	if (counter_attrs == NULL)
 		goto fail;
 

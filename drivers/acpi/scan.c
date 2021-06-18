@@ -608,11 +608,6 @@ struct acpi_device *acpi_bus_get_acpi_device(acpi_handle handle)
 	return handle_to_device(handle, get_acpi_device);
 }
 
-void acpi_bus_put_acpi_device(struct acpi_device *adev)
-{
-	acpi_dev_put(adev);
-}
-
 static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id)
 {
 	struct acpi_device_bus_id *acpi_device_bus_id;
@@ -640,23 +635,28 @@ static int acpi_device_set_name(struct acpi_device *device,
 	return 0;
 }
 
-int acpi_device_add(struct acpi_device *device,
-		    void (*release)(struct device *))
+static int acpi_tie_acpi_dev(struct acpi_device *adev)
+{
+	acpi_handle handle = adev->handle;
+	acpi_status status;
+
+	if (!handle)
+		return 0;
+
+	status = acpi_attach_data(handle, acpi_scan_drop_device, adev);
+	if (ACPI_FAILURE(status)) {
+		acpi_handle_err(handle, "Unable to attach device data\n");
+		return -ENODEV;
+	}
+
+	return 0;
+}
+
+static int __acpi_device_add(struct acpi_device *device,
+			     void (*release)(struct device *))
 {
 	struct acpi_device_bus_id *acpi_device_bus_id;
 	int result;
-
-	if (device->handle) {
-		acpi_status status;
-
-		status = acpi_attach_data(device->handle, acpi_scan_drop_device,
-					  device);
-		if (ACPI_FAILURE(status)) {
-			acpi_handle_err(device->handle,
-					"Unable to attach device data\n");
-			return -ENODEV;
-		}
-	}
 
 	/*
 	 * Linkage
@@ -744,6 +744,17 @@ err_unlock:
 	acpi_detach_data(device->handle, acpi_scan_drop_device);
 
 	return result;
+}
+
+int acpi_device_add(struct acpi_device *adev, void (*release)(struct device *))
+{
+	int ret;
+
+	ret = acpi_tie_acpi_dev(adev);
+	if (ret)
+		return ret;
+
+	return __acpi_device_add(adev, release);
 }
 
 /* --------------------------------------------------------------------------
@@ -1672,14 +1683,10 @@ static void acpi_scan_dep_init(struct acpi_device *adev)
 {
 	struct acpi_dep_data *dep;
 
-	mutex_lock(&acpi_dep_list_lock);
-
 	list_for_each_entry(dep, &acpi_dep_list, node) {
 		if (dep->consumer == adev->handle)
 			adev->dep_unmet++;
 	}
-
-	mutex_unlock(&acpi_dep_list_lock);
 }
 
 void acpi_device_add_finalize(struct acpi_device *device)
@@ -1698,6 +1705,7 @@ static int acpi_add_single_object(struct acpi_device **child,
 				  acpi_handle handle, int type, bool dep_init)
 {
 	struct acpi_device *device;
+	bool release_dep_lock = false;
 	int result;
 
 	device = kzalloc(sizeof(struct acpi_device), GFP_KERNEL);
@@ -1711,16 +1719,31 @@ static int acpi_add_single_object(struct acpi_device **child,
 	 * this must be done before the get power-/wakeup_dev-flags calls.
 	 */
 	if (type == ACPI_BUS_TYPE_DEVICE || type == ACPI_BUS_TYPE_PROCESSOR) {
-		if (dep_init)
+		if (dep_init) {
+			mutex_lock(&acpi_dep_list_lock);
+			/*
+			 * Hold the lock until the acpi_tie_acpi_dev() call
+			 * below to prevent concurrent acpi_scan_clear_dep()
+			 * from deleting a dependency list entry without
+			 * updating dep_unmet for the device.
+			 */
+			release_dep_lock = true;
 			acpi_scan_dep_init(device);
-
+		}
 		acpi_scan_init_status(device);
 	}
 
 	acpi_bus_get_power_flags(device);
 	acpi_bus_get_wakeup_device_flags(device);
 
-	result = acpi_device_add(device, acpi_device_release);
+	result = acpi_tie_acpi_dev(device);
+
+	if (release_dep_lock)
+		mutex_unlock(&acpi_dep_list_lock);
+
+	if (!result)
+		result = __acpi_device_add(device, acpi_device_release);
+
 	if (result) {
 		acpi_device_release(&device->dev);
 		return result;
@@ -2107,25 +2130,64 @@ static int acpi_dev_get_first_consumer_dev_cb(struct acpi_dep_data *dep, void *d
 	struct acpi_device *adev;
 
 	adev = acpi_bus_get_acpi_device(dep->consumer);
-	if (!adev)
-		/* If we don't find an adev then we want to continue parsing */
-		return 0;
+	if (adev) {
+		*(struct acpi_device **)data = adev;
+		return 1;
+	}
+	/* Continue parsing if the device object is not present. */
+	return 0;
+}
 
-	*(struct acpi_device **)data = adev;
+struct acpi_scan_clear_dep_work {
+	struct work_struct work;
+	struct acpi_device *adev;
+};
 
-	return 1;
+static void acpi_scan_clear_dep_fn(struct work_struct *work)
+{
+	struct acpi_scan_clear_dep_work *cdw;
+
+	cdw = container_of(work, struct acpi_scan_clear_dep_work, work);
+
+	acpi_scan_lock_acquire();
+	acpi_bus_attach(cdw->adev, true);
+	acpi_scan_lock_release();
+
+	acpi_dev_put(cdw->adev);
+	kfree(cdw);
+}
+
+static bool acpi_scan_clear_dep_queue(struct acpi_device *adev)
+{
+	struct acpi_scan_clear_dep_work *cdw;
+
+	if (adev->dep_unmet)
+		return false;
+
+	cdw = kmalloc(sizeof(*cdw), GFP_KERNEL);
+	if (!cdw)
+		return false;
+
+	cdw->adev = adev;
+	INIT_WORK(&cdw->work, acpi_scan_clear_dep_fn);
+	/*
+	 * Since the work function may block on the lock until the entire
+	 * initial enumeration of devices is complete, put it into the unbound
+	 * workqueue.
+	 */
+	queue_work(system_unbound_wq, &cdw->work);
+
+	return true;
 }
 
 static int acpi_scan_clear_dep(struct acpi_dep_data *dep, void *data)
 {
-	struct acpi_device *adev;
-
-	acpi_bus_get_device(dep->consumer, &adev);
+	struct acpi_device *adev = acpi_bus_get_acpi_device(dep->consumer);
 
 	if (adev) {
 		adev->dep_unmet--;
-		if (!adev->dep_unmet)
-			acpi_bus_attach(adev, true);
+		if (!acpi_scan_clear_dep_queue(adev))
+			acpi_dev_put(adev);
 	}
 
 	list_del(&dep->node);
@@ -2146,9 +2208,9 @@ static int acpi_scan_clear_dep(struct acpi_dep_data *dep, void *data)
  * negative value is returned by the callback then the loop is broken and that
  * value is returned as the final error.
  */
-int acpi_walk_dep_device_list(acpi_handle handle,
-			      int (*callback)(struct acpi_dep_data *, void *),
-			      void *data)
+static int acpi_walk_dep_device_list(acpi_handle handle,
+				int (*callback)(struct acpi_dep_data *, void *),
+				void *data)
 {
 	struct acpi_dep_data *dep, *tmp;
 	int ret = 0;
@@ -2165,7 +2227,6 @@ int acpi_walk_dep_device_list(acpi_handle handle,
 
 	return ret > 0 ? 0 : ret;
 }
-EXPORT_SYMBOL_GPL(acpi_walk_dep_device_list);
 
 /**
  * acpi_dev_clear_dependencies - Inform consumers that the device is now active
