@@ -3464,7 +3464,13 @@ static void get_active_converter_info(
 	}
 
 	/* DPCD 0x5 bit 0 = 1, it indicate it's branch device */
-	link->dpcd_caps.is_branch_dev = ds_port.fields.PORT_PRESENT;
+	if (ds_port.fields.PORT_TYPE == DOWNSTREAM_DP) {
+		link->dpcd_caps.is_branch_dev = false;
+	}
+
+	else {
+		link->dpcd_caps.is_branch_dev = ds_port.fields.PORT_PRESENT;
+	}
 
 	switch (ds_port.fields.PORT_TYPE) {
 	case DOWNSTREAM_VGA:
@@ -3675,6 +3681,10 @@ bool dp_retrieve_lttpr_cap(struct dc_link *link)
 				DP_LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV,
 				lttpr_dpcd_data,
 				sizeof(lttpr_dpcd_data));
+		if (status != DC_OK) {
+			dm_error("%s: Read LTTPR caps data failed.\n", __func__);
+			return false;
+		}
 
 		link->dpcd_caps.lttpr_caps.revision.raw =
 				lttpr_dpcd_data[DP_LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV -
