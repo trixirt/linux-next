@@ -47,7 +47,6 @@ API to add a new FPGA region
 
 * struct fpga_region — The FPGA region struct
 * struct fpga_region_ops —  Low level FPGA region driver ops
-* devm_fpga_region_create() — Allocate and init a region struct
 * fpga_region_register() —  Register an FPGA region
 * fpga_region_unregister() —  Unregister an FPGA region
 
@@ -78,9 +77,6 @@ following APIs to handle building or tearing down that list.
 
 .. kernel-doc:: include/linux/fpga/fpga-region.h
    :functions: fpga_region_ops
-
-.. kernel-doc:: drivers/fpga/fpga-region.c
-   :functions: devm_fpga_region_create
 
 .. kernel-doc:: drivers/fpga/fpga-region.c
    :functions: fpga_region_register

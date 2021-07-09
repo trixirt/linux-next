@@ -51,15 +51,9 @@ struct fpga_region *fpga_region_class_find(
 
 int fpga_region_program_fpga(struct fpga_region *region);
 
-struct fpga_region
-*fpga_region_create(struct device *dev, struct fpga_manager *mgr,
-		    const struct fpga_region_ops *rops);
-void fpga_region_free(struct fpga_region *region);
-int fpga_region_register(struct fpga_region *region);
+struct fpga_region *
+fpga_region_register(struct device *parent, struct fpga_manager *mgr,
+		     const struct fpga_region_ops *rops, void *priv);
 void fpga_region_unregister(struct fpga_region *region);
-
-struct fpga_region
-*devm_fpga_region_create(struct device *dev, struct fpga_manager *mgr,
-			 const struct fpga_region_ops *rops);
 
 #endif /* _FPGA_REGION_H */
