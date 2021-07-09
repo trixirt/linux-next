@@ -49,14 +49,14 @@ probe function calls fpga_mgr_register(), such as::
 		 * them in priv
 		 */
 
-		mgr = devm_fpga_mgr_create(dev, "Altera SOCFPGA FPGA Manager",
-					   &socfpga_fpga_ops, priv);
-		if (!mgr)
-			return -ENOMEM;
+		mgr = fpga_mgr_register(dev, "Altera SOCFPGA FPGA Manager",
+					&socfpga_fpga_ops, priv);
+		if (IS_ERR(mgr))
+			return PTR_ERR(mgr);
 
 		platform_set_drvdata(pdev, mgr);
 
-		return fpga_mgr_register(mgr);
+		return 0;
 	}
 
 	static int socfpga_fpga_remove(struct platform_device *pdev)
@@ -68,6 +68,11 @@ probe function calls fpga_mgr_register(), such as::
 		return 0;
 	}
 
+Alternatively, the probe function could call the resource managed register
+functions devm_fpga_mgr_register(). When these functions are used, the
+parameter syntax is the same, but the call to fpga_mgr_unregister() should
+be removed. In the above example, the socfpga_fpga_remove() function would
+not be required.
 
 The ops will implement whatever device specific register writes are needed to
 do the programming sequence for this particular FPGA.  These ops return 0 for
@@ -104,8 +109,8 @@ API for implementing a new FPGA Manager driver
 * ``fpga_mgr_states`` —  Values for :c:expr:`fpga_manager->state`.
 * struct fpga_manager —  the FPGA manager struct
 * struct fpga_manager_ops —  Low level FPGA manager driver ops
-* devm_fpga_mgr_create() —  Allocate and init a manager struct
-* fpga_mgr_register() —  Register an FPGA manager
+* fpga_mgr_register() —  Create and register an FPGA manager
+* devm_fpga_mgr_register() —  Resource managed version of fpga_mgr_register()
 * fpga_mgr_unregister() —  Unregister an FPGA manager
 
 .. kernel-doc:: include/linux/fpga/fpga-mgr.h
@@ -118,10 +123,10 @@ API for implementing a new FPGA Manager driver
    :functions: fpga_manager_ops
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
-   :functions: devm_fpga_mgr_create
+   :functions: fpga_mgr_register
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
-   :functions: fpga_mgr_register
+   :functions: devm_fpga_mgr_register
 
 .. kernel-doc:: drivers/fpga/fpga-mgr.c
    :functions: fpga_mgr_unregister
