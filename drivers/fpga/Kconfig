@@ -244,6 +244,15 @@ config FPGA_MGR_VERSAL_FPGA
 
 	  To compile this as a module, choose M here.
 
+config FPGA_SEC_MGR
+	tristate "FPGA Security Manager"
+	help
+	  The Security Manager class driver presents a common
+	  user API for managing secure updates for FPGA
+	  devices, including flash images for the FPGA static
+	  region and for the BMC. Select this option to enable
+	  updates for secure FPGA devices.
+
 config IFPGA_M10_BMC_SECURE
 	tristate "Intel MAX10 BMC Secure Update driver"
 	depends on MFD_INTEL_M10_BMC && FPGA_SEC_MGR
