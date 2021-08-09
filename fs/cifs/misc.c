@@ -723,19 +723,29 @@ void
 cifs_close_deferred_file(struct cifsInodeInfo *cifs_inode)
 {
 	struct cifsFileInfo *cfile = NULL;
+	struct file_list *tmp_list;
+	struct list_head file_head;
 
 	if (cifs_inode == NULL)
 		return;
 
+	INIT_LIST_HEAD(&file_head);
+	spin_lock(&cifs_inode->open_file_lock);
 	list_for_each_entry(cfile, &cifs_inode->openFileList, flist) {
 		if (delayed_work_pending(&cfile->deferred)) {
-			/*
-			 * If there is no pending work, mod_delayed_work queues new work.
-			 * So, Increase the ref count to avoid use-after-free.
-			 */
-			if (!mod_delayed_work(deferredclose_wq, &cfile->deferred, 0))
-				cifsFileInfo_get(cfile);
+			if (cancel_delayed_work(&cfile->deferred)) {
+				tmp_list = kmalloc(sizeof(struct file_list), GFP_ATOMIC);
+				if (tmp_list == NULL)
+					continue;
+				tmp_list->cfile = cfile;
+				list_add_tail(&tmp_list->list, &file_head);
+			}
 		}
+	}
+	spin_unlock(&cifs_inode->open_file_lock);
+
+	list_for_each_entry(tmp_list, &file_head, list) {
+		_cifsFileInfo_put(tmp_list->cfile, true, false);
 	}
 }
 
@@ -744,20 +754,28 @@ cifs_close_all_deferred_files(struct cifs_tcon *tcon)
 {
 	struct cifsFileInfo *cfile;
 	struct list_head *tmp;
+	struct file_list *tmp_list;
+	struct list_head file_head;
 
+	INIT_LIST_HEAD(&file_head);
 	spin_lock(&tcon->open_file_lock);
 	list_for_each(tmp, &tcon->openFileList) {
 		cfile = list_entry(tmp, struct cifsFileInfo, tlist);
 		if (delayed_work_pending(&cfile->deferred)) {
-			/*
-			 * If there is no pending work, mod_delayed_work queues new work.
-			 * So, Increase the ref count to avoid use-after-free.
-			 */
-			if (!mod_delayed_work(deferredclose_wq, &cfile->deferred, 0))
-				cifsFileInfo_get(cfile);
+			if (cancel_delayed_work(&cfile->deferred)) {
+				tmp_list = kmalloc(sizeof(struct file_list), GFP_ATOMIC);
+				if (tmp_list == NULL)
+					continue;
+				tmp_list->cfile = cfile;
+				list_add_tail(&tmp_list->list, &file_head);
+			}
 		}
 	}
 	spin_unlock(&tcon->open_file_lock);
+
+	list_for_each_entry(tmp_list, &file_head, list) {
+		_cifsFileInfo_put(tmp_list->cfile, true, false);
+	}
 }
 
 /* parses DFS refferal V3 structure
