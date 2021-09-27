@@ -137,6 +137,7 @@ static int test_aa(bool trylock)
 	} else {
 		if (!ww_mutex_trylock(&mutex, &ctx)) {
 			pr_err("%s: initial trylock failed!\n", __func__);
+			ret = -EINVAL;
 			goto out;
 		}
 	}
