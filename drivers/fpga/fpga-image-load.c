@@ -159,7 +159,6 @@ static int fpga_image_load_ioctl_write(struct fpga_image_load *imgld,
 	imgld->err_code = 0;
 	imgld->progress = FPGA_IMAGE_PROG_STARTING;
 	queue_work(system_long_wq, &imgld->work);
-
 	return 0;
 
 exit_free:
@@ -184,11 +183,21 @@ static int fpga_image_load_ioctl_status(struct fpga_image_load *imgld,
 	return 0;
 }
 
+static int fpga_image_load_ioctl_cancel(struct fpga_image_load *imgld,
+					unsigned long arg)
+{
+	if (imgld->progress == FPGA_IMAGE_PROG_IDLE)
+		return -ENODEV;
+
+	imgld->ops->cancel(imgld);
+	return 0;
+}
+
 static long fpga_image_load_ioctl(struct file *filp, unsigned int cmd,
 				  unsigned long arg)
 {
 	struct fpga_image_load *imgld = filp->private_data;
-	int ret = -ENOTTY;
+	int ret = 0;
 
 	mutex_lock(&imgld->lock);
 
@@ -198,6 +207,12 @@ static long fpga_image_load_ioctl(struct file *filp, unsigned int cmd,
 		break;
 	case FPGA_IMAGE_LOAD_STATUS:
 		ret = fpga_image_load_ioctl_status(imgld, arg);
+		break;
+	case FPGA_IMAGE_LOAD_CANCEL:
+		ret = fpga_image_load_ioctl_cancel(imgld, arg);
+		break;
+	default:
+		ret = -ENOTTY;
 		break;
 	}
 
@@ -228,6 +243,8 @@ static int fpga_image_load_release(struct inode *inode, struct file *filp)
 		mutex_unlock(&imgld->lock);
 		goto close_exit;
 	}
+
+	imgld->ops->cancel(imgld);
 
 	mutex_unlock(&imgld->lock);
 	flush_work(&imgld->work);
@@ -263,7 +280,8 @@ fpga_image_load_register(struct device *parent,
 	struct fpga_image_load *imgld;
 	int ret;
 
-	if (!ops || !ops->prepare || !ops->write || !ops->poll_complete) {
+	if (!ops || !ops->cancel || !ops->prepare ||
+	    !ops->write || !ops->poll_complete) {
 		dev_err(parent, "Attempt to register without all required ops\n");
 		return ERR_PTR(-ENOMEM);
 	}
@@ -341,6 +359,8 @@ void fpga_image_load_unregister(struct fpga_image_load *imgld)
 		mutex_unlock(&imgld->lock);
 		goto unregister;
 	}
+
+	imgld->ops->cancel(imgld);
 
 	mutex_unlock(&imgld->lock);
 	flush_work(&imgld->work);
