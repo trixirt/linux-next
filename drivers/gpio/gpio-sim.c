@@ -867,7 +867,7 @@ static int gpio_sim_device_activate_unlocked(struct gpio_sim_device *dev)
 	struct fwnode_handle *swnode;
 	struct platform_device *pdev;
 	struct gpio_sim_bank *bank;
-	int ret;
+	int ret = 0;
 
 	if (list_empty(&dev->bank_list))
 		return -ENODATA;
