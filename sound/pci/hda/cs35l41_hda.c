@@ -476,7 +476,6 @@ int cs35l41_hda_probe(struct device *dev, const char *device_name, int id, int i
 	ret = cs35l41_hda_apply_properties(cs35l41, acpi_hw_cfg);
 	if (ret)
 		goto err;
-	kfree(acpi_hw_cfg);
 
 	if (cs35l41->reg_seq->probe) {
 		ret = regmap_register_patch(cs35l41->regmap, cs35l41->reg_seq->probe,
@@ -495,13 +494,14 @@ int cs35l41_hda_probe(struct device *dev, const char *device_name, int id, int i
 
 	dev_info(cs35l41->dev, "Cirrus Logic CS35L41 (%x), Revision: %02X\n", regid, reg_revid);
 
-	return 0;
-
 err:
 	kfree(acpi_hw_cfg);
-	if (!cs35l41->vspk_always_on)
-		gpiod_set_value_cansleep(cs35l41->reset_gpio, 0);
-	gpiod_put(cs35l41->reset_gpio);
+
+	if (unlikely(ret)) {
+		if (!cs35l41->vspk_always_on)
+			gpiod_set_value_cansleep(cs35l41->reset_gpio, 0);
+		gpiod_put(cs35l41->reset_gpio);
+	}
 
 	return ret;
 }
