@@ -385,14 +385,16 @@ static void mtk_mac_config(struct phylink_config *config, unsigned int mode,
 		       0 : mac->id;
 
 		/* Setup SGMIISYS with the determined property */
-		if (state->interface != PHY_INTERFACE_MODE_SGMII)
+		if (state->interface != PHY_INTERFACE_MODE_SGMII) {
 			err = mtk_sgmii_setup_mode_force(eth->sgmii, sid,
 							 state);
-		else if (phylink_autoneg_inband(mode))
+			if (err)
+				goto init_err;
+		} else if (phylink_autoneg_inband(mode)) {
 			err = mtk_sgmii_setup_mode_an(eth->sgmii, sid);
-
-		if (err)
-			goto init_err;
+			if (err)
+				goto init_err;
+		}
 
 		regmap_update_bits(eth->ethsys, ETHSYS_SYSCFG0,
 				   SYSCFG0_SGMII_MASK, val);
