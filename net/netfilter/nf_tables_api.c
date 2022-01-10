@@ -8358,7 +8358,7 @@ static int nf_tables_commit_chain_prepare(struct net *net, struct nft_chain *cha
 {
 	const struct nft_expr *expr, *last;
 	struct nft_regs_track track = {};
-	unsigned int size, data_size;
+	unsigned int size, data_size = 0;
 	void *data, *data_boundary;
 	struct nft_rule_dp *prule;
 	struct nft_rule *rule;
