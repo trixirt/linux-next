@@ -49,6 +49,7 @@ static bool afs_dir_dirty_folio(struct address_space *mapping,
 		struct folio *folio)
 {
 	BUG(); /* This should never happen. */
+	return 0; // xxx
 }
 
 const struct file_operations afs_dir_file_operations = {
