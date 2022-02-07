@@ -578,7 +578,7 @@ out:
 	__pipe_unlock(pipe);
 
 	/*
-	 * If we do do a wakeup event, we do a 'sync' wakeup, because we
+	 * If we do a wakeup event, we do a 'sync' wakeup, because we
 	 * want the reader to start processing things asap, rather than
 	 * leave the data pending.
 	 *
