@@ -876,7 +876,7 @@ static irqreturn_t adxl367_irq_handler(int irq, void *private)
 	struct iio_dev *indio_dev = private;
 	struct adxl367_state *st = iio_priv(indio_dev);
 	u16 fifo_entries;
-	bool handled;
+	bool handled = 0;
 	u8 status;
 	int ret;
 
