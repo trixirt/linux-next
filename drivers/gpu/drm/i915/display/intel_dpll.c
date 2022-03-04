@@ -308,11 +308,13 @@ int pnv_calc_dpll_params(int refclk, struct dpll *clock)
 {
 	clock->m = clock->m2 + 2;
 	clock->p = clock->p1 * clock->p2;
-	if (WARN_ON(clock->n == 0 || clock->p == 0))
-		return 0;
+	if (WARN_ON(clock->n == 0 || clock->p == 0)) {
+		clock->dot = 0;
+		goto end;
+	}
 	clock->vco = DIV_ROUND_CLOSEST(refclk * clock->m, clock->n);
 	clock->dot = DIV_ROUND_CLOSEST(clock->vco, clock->p);
-
+end:
 	return clock->dot;
 }
 
@@ -325,11 +327,13 @@ int i9xx_calc_dpll_params(int refclk, struct dpll *clock)
 {
 	clock->m = i9xx_dpll_compute_m(clock);
 	clock->p = clock->p1 * clock->p2;
-	if (WARN_ON(clock->n + 2 == 0 || clock->p == 0))
-		return 0;
+	if (WARN_ON(clock->n + 2 == 0 || clock->p == 0)) {
+		clock->dot = 0;
+		goto end;
+	}
 	clock->vco = DIV_ROUND_CLOSEST(refclk * clock->m, clock->n + 2);
 	clock->dot = DIV_ROUND_CLOSEST(clock->vco, clock->p);
-
+end:
 	return clock->dot;
 }
 
@@ -337,11 +341,13 @@ int vlv_calc_dpll_params(int refclk, struct dpll *clock)
 {
 	clock->m = clock->m1 * clock->m2;
 	clock->p = clock->p1 * clock->p2;
-	if (WARN_ON(clock->n == 0 || clock->p == 0))
-		return 0;
+	if (WARN_ON(clock->n == 0 || clock->p == 0)) {
+		clock->dot = 0;
+		goto end;
+	}
 	clock->vco = DIV_ROUND_CLOSEST(refclk * clock->m, clock->n);
 	clock->dot = DIV_ROUND_CLOSEST(clock->vco, clock->p);
-
+end:
 	return clock->dot / 5;
 }
 
@@ -349,12 +355,14 @@ int chv_calc_dpll_params(int refclk, struct dpll *clock)
 {
 	clock->m = clock->m1 * clock->m2;
 	clock->p = clock->p1 * clock->p2;
-	if (WARN_ON(clock->n == 0 || clock->p == 0))
-		return 0;
+	if (WARN_ON(clock->n == 0 || clock->p == 0)) {
+		clock->dot = 0;
+		goto end;
+	}
 	clock->vco = DIV_ROUND_CLOSEST_ULL(mul_u32_u32(refclk, clock->m),
 					   clock->n << 22);
 	clock->dot = DIV_ROUND_CLOSEST(clock->vco, clock->p);
-
+end:
 	return clock->dot / 5;
 }
 
