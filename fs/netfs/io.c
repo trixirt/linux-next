@@ -601,7 +601,7 @@ subreq_failed:
 int netfs_begin_read(struct netfs_io_request *rreq, bool sync)
 {
 	unsigned int debug_index = 0;
-	int ret;
+	int ret = 0;
 
 	_enter("R=%x %llx-%llx",
 	       rreq->debug_id, rreq->start, rreq->start + rreq->len - 1);
