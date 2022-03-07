@@ -487,7 +487,7 @@ static inline void deallocate_hqd(struct device_queue_manager *dqm,
 static int dbgdev_wave_reset_wavefronts(struct kfd_dev *dev, struct kfd_process *p)
 {
 	int status = 0;
-	unsigned int vmid;
+	unsigned int vmid = 0;
 	uint16_t queried_pasid;
 	union SQ_CMD_BITS reg_sq_cmd;
 	union GRBM_GFX_INDEX_BITS reg_gfx_index;
