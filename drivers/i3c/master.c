@@ -2286,7 +2286,7 @@ static struct notifier_block i2cdev_notifier = {
 static int i3c_master_i2c_adapter_init(struct i3c_master_controller *master)
 {
 	struct i2c_adapter *adap = i3c_master_to_i2c_adapter(master);
-	struct i2c_dev_desc *i2cdev;
+	struct i2c_dev_desc *i2cdev = NULL;
 	struct i2c_dev_boardinfo *i2cboardinfo;
 	int ret;
 
