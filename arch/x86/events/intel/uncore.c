@@ -573,7 +573,7 @@ int uncore_pmu_event_add(struct perf_event *event, int flags)
 		return -ENODEV;
 
 	/*
-	 * The free funning counter is assigned in event_init().
+	 * The free running counter is assigned in event_init().
 	 * The free running counter event and free running counter
 	 * are 1:1 mapped. It doesn't need to be tracked in event_list.
 	 */

@@ -1,4 +1,4 @@
-/* SPDX-License-Identifier: GPL-2.0-only */
+// SPDX-License-Identifier: GPL-2.0-only
 /*
  * Support Intel uncore PerfMon discovery mechanism.
  * Copyright(c) 2021 Intel Corporation.

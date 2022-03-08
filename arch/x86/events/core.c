@@ -1416,7 +1416,7 @@ int x86_perf_event_set_period(struct perf_event *event)
 		wrmsrl(x86_pmu_event_addr(idx + 1), 0xffff);
 
 	/*
-	 * Due to erratum on certan cpu we need
+	 * Due to erratum on certain cpu we need
 	 * a second write to be sure the register
 	 * is updated properly
 	 */

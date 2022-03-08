@@ -960,7 +960,7 @@ static void __p4_pmu_enable_event(struct perf_event *event)
 	escr_addr = bind->escr_msr[thread];
 
 	/*
-	 * - we dont support cascaded counters yet
+	 * - we don't support cascaded counters yet
 	 * - and counter 1 is broken (erratum)
 	 */
 	WARN_ON_ONCE(p4_is_event_cascaded(hwc->config));

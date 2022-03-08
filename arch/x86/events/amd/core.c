@@ -81,7 +81,7 @@ static __initconst const u64 amd_hw_cache_event_ids
  },
  [ C(ITLB) ] = {
 	[ C(OP_READ) ] = {
-		[ C(RESULT_ACCESS) ] = 0x0080, /* Instruction fecthes        */
+		[ C(RESULT_ACCESS) ] = 0x0080, /* Instruction fetches        */
 		[ C(RESULT_MISS)   ] = 0x0385, /* L1_ITLB_AND_L2_ITLB_MISS.ALL */
 	},
 	[ C(OP_WRITE) ] = {
