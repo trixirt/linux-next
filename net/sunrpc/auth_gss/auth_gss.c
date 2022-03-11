@@ -1445,7 +1445,7 @@ out:
 
 /*
  * Returns -EACCES if GSS context is NULL or will expire within the
- * timeout (miliseconds)
+ * timeout (milliseconds)
  */
 static int
 gss_key_timeout(struct rpc_cred *rc)

@@ -313,7 +313,7 @@ int gssp_accept_sec_context_upcall(struct net *net,
 	gssp_free_receive_pages(&arg);
 
 	/* we need to fetch all data even in case of error so
-	 * that we can free special strctures is they have been allocated */
+	 * that we can free special structures is they have been allocated */
 	data->major_status = res.status.major_status;
 	data->minor_status = res.status.minor_status;
 	if (res.context_handle) {

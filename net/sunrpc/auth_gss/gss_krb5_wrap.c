@@ -97,7 +97,7 @@ out:
 	 * However adjusting the head length, as we do above, is harmless.
 	 * In the case of a request that fits into a single page, the server
 	 * also uses length and head length together to determine the original
-	 * start of the request to copy the request for deferal; so it's
+	 * start of the request to copy the request for deferral; so it's
 	 * easier on the server if we adjust head and tail length in tandem.
 	 * It's not really a problem that we don't fool with the page and
 	 * tail lengths, though--at worst badly formed xdr might lead the
