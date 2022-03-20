@@ -711,11 +711,9 @@ static void ath9k_hw_ar9287_set_txpower(struct ath_hw *ah,
 	struct ath_regulatory *regulatory = ath9k_hw_regulatory(ah);
 	struct ar9287_eeprom *pEepData = &ah->eeprom.map9287;
 	struct modal_eep_ar9287_header *pModal = &pEepData->modalHeader;
-	int16_t ratesArray[Ar5416RateSize];
+	int16_t ratesArray[Ar5416RateSize] = {};
 	u8 ht40PowerIncForPdadc = 2;
 	int i;
-
-	memset(ratesArray, 0, sizeof(ratesArray));
 
 	if (ath9k_hw_ar9287_get_eeprom_rev(ah) >= AR9287_EEP_MINOR_VER_2)
 		ht40PowerIncForPdadc = pModal->ht40PowerIncForPdadc;

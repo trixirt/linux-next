@@ -419,13 +419,16 @@ static inline int find_proper_scale(int expn, int N)
 static bool create_pa_curve(u32 *data_L, u32 *data_U, u32 *pa_table, u16 *gain)
 {
 	unsigned int thresh_accum_cnt;
-	int x_est[NUM_BIN + 1], Y[NUM_BIN + 1], theta[NUM_BIN + 1];
+	int x_est[NUM_BIN + 1] = {};
+	int Y[NUM_BIN + 1] = {};
+	int theta[NUM_BIN + 1] = {};
 	int PA_in[NUM_BIN + 1];
 	int B1_tmp[NUM_BIN + 1], B2_tmp[NUM_BIN + 1];
 	unsigned int B1_abs_max, B2_abs_max;
 	int max_index, scale_factor;
-	int y_est[NUM_BIN + 1];
-	int x_est_fxp1_nonlin, x_tilde[NUM_BIN + 1];
+	int y_est[NUM_BIN + 1] = {};
+	int x_est_fxp1_nonlin;
+	int x_tilde[NUM_BIN + 1] = {};
 	unsigned int x_tilde_abs;
 	int G_fxp, Y_intercept, order_x_by_y, M, I, L, sum_y_sqr, sum_y_quad;
 	int Q_x, Q_B1, Q_B2, beta_raw, alpha_raw, scale_B;
@@ -439,11 +442,6 @@ static bool create_pa_curve(u32 *data_L, u32 *data_U, u32 *pa_table, u16 *gain)
 	thresh_accum_cnt = 16;
 	scale_factor = 5;
 	max_index = 0;
-	memset(theta, 0, sizeof(theta));
-	memset(x_est, 0, sizeof(x_est));
-	memset(Y, 0, sizeof(Y));
-	memset(y_est, 0, sizeof(y_est));
-	memset(x_tilde, 0, sizeof(x_tilde));
 
 	for (i = 0; i < NUM_BIN; i++) {
 		s32 accum_cnt, accum_tx, accum_rx, accum_ang;

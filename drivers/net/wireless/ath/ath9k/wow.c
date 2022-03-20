@@ -53,11 +53,8 @@ static int ath9k_wow_add_disassoc_deauth_pattern(struct ath_softc *sc)
 	struct ath_common *common = ath9k_hw_common(ah);
 	int pattern_count = 0;
 	int ret, i, byte_cnt = 0;
-	u8 dis_deauth_pattern[MAX_PATTERN_SIZE];
-	u8 dis_deauth_mask[MAX_PATTERN_SIZE];
-
-	memset(dis_deauth_pattern, 0, MAX_PATTERN_SIZE);
-	memset(dis_deauth_mask, 0, MAX_PATTERN_SIZE);
+	u8 dis_deauth_pattern[MAX_PATTERN_SIZE] = {};
+	u8 dis_deauth_mask[MAX_PATTERN_SIZE] = {};
 
 	/*
 	 * Create Dissassociate / Deauthenticate packet filter

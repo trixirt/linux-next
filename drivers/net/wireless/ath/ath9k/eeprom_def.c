@@ -1150,11 +1150,9 @@ static void ath9k_hw_def_set_txpower(struct ath_hw *ah,
 	struct ar5416_eeprom_def *pEepData = &ah->eeprom.def;
 	struct modal_eep_header *pModal =
 		&(pEepData->modalHeader[IS_CHAN_2GHZ(chan)]);
-	int16_t ratesArray[Ar5416RateSize];
+	int16_t ratesArray[Ar5416RateSize] = {};
 	u8 ht40PowerIncForPdadc = 2;
 	int i, cck_ofdm_delta = 0;
-
-	memset(ratesArray, 0, sizeof(ratesArray));
 
 	if (ath9k_hw_def_get_eeprom_rev(ah) >= AR5416_EEP_MINOR_VER_2)
 		ht40PowerIncForPdadc = pModal->ht40PowerIncForPdadc;

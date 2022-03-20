@@ -5451,13 +5451,11 @@ static void ath9k_hw_ar9300_set_txpower(struct ath_hw *ah,
 	struct ath_common *common = ath9k_hw_common(ah);
 	struct ar9300_eeprom *eep = &ah->eeprom.ar9300_eep;
 	struct ar9300_modal_eep_header *modal_hdr;
-	u8 targetPowerValT2[ar9300RateSize];
+	u8 targetPowerValT2[ar9300RateSize] = {};
 	u8 target_power_val_t2_eep[ar9300RateSize];
 	u8 targetPowerValT2_tpc[ar9300RateSize];
 	unsigned int i = 0, paprd_scale_factor = 0;
 	u8 pwr_idx, min_pwridx = 0;
-
-	memset(targetPowerValT2, 0 , sizeof(targetPowerValT2));
 
 	/*
 	 * Get target powers from EEPROM - our baseline for TX Power
