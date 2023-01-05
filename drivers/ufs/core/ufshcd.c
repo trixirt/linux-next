@@ -7231,7 +7231,7 @@ int ufshcd_advanced_rpmb_req_handler(struct ufs_hba *hba, struct utp_upiu_req *r
 	/* Copy EHS, starting with byte32, immediately after the CDB package */
 	memcpy(lrbp->ucd_req_ptr + 1, req_ehs, sizeof(*req_ehs));
 
-	if (dir != DMA_NONE && sg_list)
+	if (sg_list)
 		ufshcd_sgl_to_prdt(hba, lrbp, sg_cnt, sg_list);
 
 	memset(lrbp->ucd_rsp_ptr, 0, sizeof(struct utp_upiu_rsp));
