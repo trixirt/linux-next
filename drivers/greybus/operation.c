@@ -362,8 +362,7 @@ gb_operation_message_alloc(struct gb_host_device *hd, u8 type,
 			   size_t payload_size, gfp_t gfp_flags)
 {
 	struct gb_message *message;
-	struct gb_operation_msg_hdr *header;
-	size_t message_size = payload_size + sizeof(*header);
+	size_t message_size = payload_size + sizeof(struct gb_operation_msg_hdr);
 
 	if (message_size > hd->buffer_size_max) {
 		dev_warn(&hd->dev, "requested message size too big (%zu > %zu)\n",
