@@ -236,11 +236,6 @@ static inline int is_altmode(struct dlm_lkb *lkb)
 	return test_bit(DLM_SBF_ALTMODE_BIT, &lkb->lkb_sbflags);
 }
 
-static inline int is_granted(struct dlm_lkb *lkb)
-{
-	return (lkb->lkb_status == DLM_LKSTS_GRANTED);
-}
-
 static inline int is_remote(struct dlm_rsb *r)
 {
 	DLM_ASSERT(r->res_nodeid >= 0, dlm_print_rsb(r););
