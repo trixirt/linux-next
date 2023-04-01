@@ -239,7 +239,7 @@ static int twl4030_charger_update_current(struct twl4030_bci *bci)
 {
 	int status;
 	int cur;
-	unsigned reg, cur_reg;
+	unsigned reg;
 	u8 bcictl1, oldreg, fullreg;
 	bool cgain = false;
 	u8 boot_bci;
@@ -357,11 +357,9 @@ static int twl4030_charger_update_current(struct twl4030_bci *bci)
 	status = twl4030_bci_read(TWL4030_BCIIREF1, &oldreg);
 	if (status < 0)
 		return status;
-	cur_reg = oldreg;
 	status = twl4030_bci_read(TWL4030_BCIIREF2, &oldreg);
 	if (status < 0)
 		return status;
-	cur_reg |= oldreg << 8;
 	if (reg != oldreg) {
 		/* disable write protection for one write access for
 		 * BCIIREF */
