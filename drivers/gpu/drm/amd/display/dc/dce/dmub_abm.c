@@ -134,10 +134,9 @@ static bool dmub_abm_set_pipe_ex(struct abm *abm, uint32_t otg_inst, uint32_t op
 static bool dmub_abm_set_event_ex(struct abm *abm, unsigned int full_screen, unsigned int video_mode,
 		unsigned int hdr_mode, unsigned int panel_inst)
 {
-	bool ret = false;
-	unsigned int feature_support;
+	bool ret;
 
-	feature_support = abm_feature_support(abm, panel_inst);
+	ret = abm_feature_support(abm, panel_inst);
 
 	return ret;
 }
