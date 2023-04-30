@@ -443,11 +443,13 @@ static long hung_up_tty_ioctl(struct file *file, unsigned int cmd,
 	return cmd == TIOCSPGRP ? -ENOTTY : -EIO;
 }
 
+#ifdef CONFIG_COMPAT
 static long hung_up_tty_compat_ioctl(struct file *file,
 				     unsigned int cmd, unsigned long arg)
 {
 	return cmd == TIOCSPGRP ? -ENOTTY : -EIO;
 }
+#endif
 
 static int hung_up_tty_fasync(int fd, struct file *file, int on)
 {
