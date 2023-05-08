@@ -376,7 +376,8 @@ static void btrfs_simple_end_io(struct bio *bio)
 		queue_work(btrfs_end_io_wq(fs_info, bio), &bbio->end_io_work);
 	} else {
 		if (bio_op(bio) == REQ_OP_ZONE_APPEND)
-			btrfs_record_physical_zoned(bbio);
+			bbio->ordered->physical =
+				bbio->bio.bi_iter.bi_sector << SECTOR_SHIFT;
 		btrfs_orig_bbio_end_io(bbio);
 	}
 }

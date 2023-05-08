@@ -1654,19 +1654,6 @@ bool btrfs_use_zone_append(struct btrfs_bio *bbio)
 	return ret;
 }
 
-void btrfs_record_physical_zoned(struct btrfs_bio *bbio)
-{
-	const u64 physical = bbio->bio.bi_iter.bi_sector << SECTOR_SHIFT;
-	struct btrfs_ordered_extent *ordered;
-
-	ordered = btrfs_lookup_ordered_extent(bbio->inode, bbio->file_offset);
-	if (WARN_ON(!ordered))
-		return;
-
-	ordered->physical = physical;
-	btrfs_put_ordered_extent(ordered);
-}
-
 void btrfs_rewrite_logical_zoned(struct btrfs_ordered_extent *ordered)
 {
 	struct btrfs_inode *inode = BTRFS_I(ordered->inode);
