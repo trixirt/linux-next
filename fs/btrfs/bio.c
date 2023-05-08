@@ -67,26 +67,13 @@ struct btrfs_bio *btrfs_bio_alloc(unsigned int nr_vecs, blk_opf_t opf,
 	return bbio;
 }
 
-static blk_status_t btrfs_bio_extract_ordered_extent(struct btrfs_bio *bbio)
-{
-	struct btrfs_ordered_extent *ordered;
-	int ret;
-
-	ordered = btrfs_lookup_ordered_extent(bbio->inode, bbio->file_offset);
-	if (WARN_ON_ONCE(!ordered))
-		return BLK_STS_IOERR;
-	ret = btrfs_extract_ordered_extent(bbio, ordered);
-	btrfs_put_ordered_extent(ordered);
-
-	return errno_to_blk_status(ret);
-}
-
 static struct btrfs_bio *btrfs_split_bio(struct btrfs_fs_info *fs_info,
 					 struct btrfs_bio *orig_bbio,
 					 u64 map_length, bool use_append)
 {
 	struct btrfs_bio *bbio;
 	struct bio *bio;
+	int ret;
 
 	if (use_append) {
 		unsigned int nr_segs;
@@ -101,10 +88,45 @@ static struct btrfs_bio *btrfs_split_bio(struct btrfs_fs_info *fs_info,
 	btrfs_bio_init(bbio, fs_info, NULL, orig_bbio);
 	bbio->inode = orig_bbio->inode;
 	bbio->file_offset = orig_bbio->file_offset;
+	if (use_append) {
+		ret = btrfs_extract_ordered_extent(bbio, orig_bbio->ordered);
+		if (ret) {
+			bio_put(bio);
+			return ERR_PTR(ret);
+		}
+	} else if (is_data_bbio(bbio) && btrfs_op(bio) == BTRFS_MAP_WRITE) {
+		refcount_inc(&orig_bbio->ordered->refs);
+		bbio->ordered = orig_bbio->ordered;
+	}
 	orig_bbio->file_offset += map_length;
-
 	atomic_inc(&orig_bbio->pending_ios);
 	return bbio;
+}
+
+/* Free a bio that was never submitted to the underlying device. */
+static void btrfs_cleanup_bio(struct btrfs_bio *bbio)
+{
+	if (is_data_bbio(bbio) && btrfs_op(&bbio->bio) == BTRFS_MAP_WRITE)
+		btrfs_put_ordered_extent(bbio->ordered);
+	bio_put(&bbio->bio);
+}
+
+static void __btrfs_bio_end_io(struct btrfs_bio *bbio)
+{
+	if (is_data_bbio(bbio) && btrfs_op(&bbio->bio) == BTRFS_MAP_WRITE) {
+		struct btrfs_ordered_extent *ordered = bbio->ordered;
+
+		bbio->end_io(bbio);
+		btrfs_put_ordered_extent(ordered);
+	} else {
+		bbio->end_io(bbio);
+	}
+}
+
+void btrfs_bio_end_io(struct btrfs_bio *bbio, blk_status_t status)
+{
+	bbio->bio.bi_status = status;
+	__btrfs_bio_end_io(bbio);
 }
 
 static void btrfs_orig_write_end_io(struct bio *bio);
@@ -135,12 +157,12 @@ static void btrfs_orig_bbio_end_io(struct btrfs_bio *bbio)
 
 		if (bbio->bio.bi_status)
 			btrfs_bbio_propagate_error(bbio, orig_bbio);
-		bio_put(&bbio->bio);
+		btrfs_cleanup_bio(bbio);
 		bbio = orig_bbio;
 	}
 
 	if (atomic_dec_and_test(&bbio->pending_ios))
-		bbio->end_io(bbio);
+		__btrfs_bio_end_io(bbio);
 }
 
 static int next_repair_mirror(struct btrfs_failed_bio *fbio, int cur_mirror)
@@ -649,6 +671,10 @@ static bool btrfs_submit_chunk(struct btrfs_bio *bbio, int mirror_num)
 
 	if (map_length < length) {
 		bbio = btrfs_split_bio(fs_info, bbio, map_length, use_append);
+		if (IS_ERR(bbio))  {
+			ret = errno_to_blk_status(PTR_ERR(bbio));
+			goto fail;
+		}
 		bio = &bbio->bio;
 	}
 
@@ -667,9 +693,6 @@ static bool btrfs_submit_chunk(struct btrfs_bio *bbio, int mirror_num)
 		if (use_append) {
 			bio->bi_opf &= ~REQ_OP_WRITE;
 			bio->bi_opf |= REQ_OP_ZONE_APPEND;
-			ret = btrfs_bio_extract_ordered_extent(bbio);
-			if (ret)
-				goto fail_put_bio;
 		}
 
 		/*
@@ -695,7 +718,7 @@ done:
 
 fail_put_bio:
 	if (map_length < length)
-		bio_put(bio);
+		btrfs_cleanup_bio(bbio);
 fail:
 	btrfs_bio_counter_dec(fs_info);
 	btrfs_bio_end_io(orig_bbio, ret);
