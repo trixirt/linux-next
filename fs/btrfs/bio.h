@@ -39,8 +39,8 @@ struct btrfs_bio {
 
 	union {
 		/*
-		 * Data checksumming and original I/O information for internal
-		 * use in the btrfs_submit_bio machinery.
+		 * For data reads: checksumming and original I/O information.
+		 * (for internal use in the btrfs_submit_bio machinery only)
 		 */
 		struct {
 			u8 *csum;
@@ -48,7 +48,10 @@ struct btrfs_bio {
 			struct bvec_iter saved_iter;
 		};
 
-		/* For metadata parentness verification. */
+		/* For data writes: ordered extent covering the bio */
+		struct btrfs_ordered_extent *ordered;
+
+		/* For metadata: parentness verification. */
 		struct btrfs_tree_parent_check parent_check;
 	};
 
@@ -84,15 +87,7 @@ void btrfs_bio_init(struct btrfs_bio *bbio, struct btrfs_fs_info *fs_info,
 struct btrfs_bio *btrfs_bio_alloc(unsigned int nr_vecs, blk_opf_t opf,
 				  struct btrfs_fs_info *fs_info,
 				  btrfs_bio_end_io_t end_io, void *private);
-
-static inline void btrfs_bio_end_io(struct btrfs_bio *bbio, blk_status_t status)
-{
-	bbio->bio.bi_status = status;
-	bbio->end_io(bbio);
-}
-
-/* Bio only refers to one ordered extent. */
-#define REQ_BTRFS_ONE_ORDERED			REQ_DRV
+void btrfs_bio_end_io(struct btrfs_bio *bbio, blk_status_t status);
 
 /* Submit using blkcg_punt_bio_submit. */
 #define REQ_BTRFS_CGROUP_PUNT			REQ_FS_PRIVATE
