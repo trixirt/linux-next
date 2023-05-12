@@ -1544,8 +1544,6 @@ struct regmap_irq_chip_data;
  * @wake_base:   Base address for wake enables.  If zero unsupported.
  * @type_base:   Base address for irq type.  If zero unsupported.  Deprecated,
  *		 use @config_base instead.
- * @virt_reg_base:   Base addresses for extra config regs. Deprecated, use
- *		     @config_base instead.
  * @config_base: Base address for IRQ type config regs. If null unsupported.
  * @irq_reg_stride:  Stride to use for chips where registers are not contiguous.
  * @init_ack_masked: Ack all masked interrupts once during initalization.
@@ -1586,9 +1584,6 @@ struct regmap_irq_chip_data;
  *
  * @num_type_reg:    Number of type registers. Deprecated, use config registers
  *		     instead.
- * @num_virt_regs:   Number of non-standard irq configuration registers.
- *		     If zero unsupported. Deprecated, use config registers
- *		     instead.
  * @num_config_bases:	Number of config base registers.
  * @num_config_regs:	Number of config registers for each config base register.
  *
@@ -1598,15 +1593,12 @@ struct regmap_irq_chip_data;
  *		     after handling the interrupts in regmap_irq_handler().
  * @handle_mask_sync: Callback used to handle IRQ mask syncs. The index will be
  *		      in the range [0, num_regs)
- * @set_type_virt:   Driver specific callback to extend regmap_irq_set_type()
- *		     and configure virt regs. Deprecated, use @set_type_config
- *		     callback and config registers instead.
  * @set_type_config: Callback used for configuring irq types.
  * @get_irq_reg: Callback for mapping (base register, index) pairs to register
  *		 addresses. The base register will be one of @status_base,
  *		 @mask_base, etc., @main_status, or any of @config_base.
  *		 The index will be in the range [0, num_main_regs[ for the
- *		 main status base, [0, num_type_settings[ for any config
+ *		 main status base, [0, num_config_regs[ for any config
  *		 register base, and [0, num_regs[ for any other base.
  *		 If unspecified then regmap_irq_get_irq_reg_linear() is used.
  * @irq_drv_data:    Driver specific IRQ data which is passed as parameter when
@@ -1630,7 +1622,6 @@ struct regmap_irq_chip {
 	unsigned int ack_base;
 	unsigned int wake_base;
 	unsigned int type_base;
-	unsigned int *virt_reg_base;
 	const unsigned int *config_base;
 	unsigned int irq_reg_stride;
 	unsigned int init_ack_masked:1;
@@ -1652,17 +1643,13 @@ struct regmap_irq_chip {
 	int num_irqs;
 
 	int num_type_reg;
-	int num_virt_regs;
 	int num_config_bases;
 	int num_config_regs;
 
 	int (*handle_pre_irq)(void *irq_drv_data);
 	int (*handle_post_irq)(void *irq_drv_data);
-	int (*handle_mask_sync)(struct regmap *map, int index,
-				unsigned int mask_buf_def,
+	int (*handle_mask_sync)(int index, unsigned int mask_buf_def,
 				unsigned int mask_buf, void *irq_drv_data);
-	int (*set_type_virt)(unsigned int **buf, unsigned int type,
-			     unsigned long hwirq, int reg);
 	int (*set_type_config)(unsigned int **buf, unsigned int type,
 			       const struct regmap_irq *irq_data, int idx,
 			       void *irq_drv_data);
