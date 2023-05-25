@@ -56,6 +56,11 @@
 #include "asic_reg/pwr/pwr_10_0_sh_mask.h"
 #include "asic_reg/gc/gc_9_0_default.h"
 
+static const struct cs_section_def gfx9_cs_data[] = {
+    { gfx9_SECT_CONTEXT_defs, SECT_CONTEXT },
+    { 0, SECT_NONE }
+};
+
 #define GFX9_NUM_GFX_RINGS     1
 #define GFX9_NUM_SW_GFX_RINGS  2
 #define GFX9_MEC_HPD_SIZE 4096

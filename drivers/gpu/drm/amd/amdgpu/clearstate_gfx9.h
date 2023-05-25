@@ -936,7 +936,3 @@ static const struct cs_extent_def gfx9_SECT_CONTEXT_defs[] =
     {gfx9_SECT_CONTEXT_def_8, 0x0000a2f5, 155 },
     { 0, 0, 0 }
 };
-static const struct cs_section_def gfx9_cs_data[] = {
-    { gfx9_SECT_CONTEXT_defs, SECT_CONTEXT },
-    { 0, SECT_NONE }
-};
