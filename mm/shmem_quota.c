@@ -315,12 +315,12 @@ out_dqlock:
 	return 0;
 }
 
-int shmem_mark_dquot_dirty(struct dquot *dquot)
+static int shmem_mark_dquot_dirty(struct dquot *dquot)
 {
 	return 0;
 }
 
-int shmem_dquot_write_info(struct super_block *sb, int type)
+static int shmem_dquot_write_info(struct super_block *sb, int type)
 {
 	return 0;
 }
